@@ -19,7 +19,7 @@ export function Header() {
                     className="text-xl font-bold"
                     style={{
                         color: 'var(--text-primary)',
-                        letterSpacing: '-0.1em',
+                        letterSpacing: '-0.09em',
                     }}
                 >
                     1010 Web Studio

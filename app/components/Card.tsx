@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { LucideIcon } from "lucide-react";
 
 interface CardProps {
     title: string;
@@ -8,9 +9,10 @@ interface CardProps {
     number?: string;
     className?: string;
     enableScrollScale?: boolean;
+    icon?: LucideIcon;
 }
 
-export function Card({ title, description, number, className = "", enableScrollScale = false }: CardProps) {
+export function Card({ title, description, number, className = "", enableScrollScale = false, icon: Icon }: CardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
 
@@ -47,19 +49,12 @@ export function Card({ title, description, number, className = "", enableScrollS
     return (
         <div
             ref={cardRef}
-            className={`flex-shrink-0 rounded-2xl border backdrop-blur-xl p-6 transition-all hover:scale-105 glass-noise ${className}`}
+            className={`flex-shrink-0 rounded-2xl border backdrop-blur-xl p-6 transition-all hover:scale-105 glass-noise shimmer glow-on-hover ${className}`}
             style={{
                 background: 'var(--glass-bg)',
                 borderColor: 'var(--glass-border)',
                 boxShadow: '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                 transform: enableScrollScale ? `scale(${scale})` : undefined,
-                transition: 'transform 0.3s ease-out, box-shadow 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 40px var(--glass-glow)';
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
             }}
         >
             {number && (
@@ -71,20 +66,13 @@ export function Card({ title, description, number, className = "", enableScrollS
                 </div>
             )}
             <div
-                className="flex h-12 w-12 items-center justify-center rounded-lg mb-4"
+                className="flex h-12 w-12 items-center justify-center rounded-lg mb-4 icon-hover-bounce transition-transform"
                 style={{
                     background: 'linear-gradient(135deg, var(--card-background-light) 0%, var(--highlight) 100%)',
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
                 }}
             >
-                {/* Icon placeholder */}
-                <div
-                    className="h-6 w-6 rounded"
-                    style={{
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        backdropFilter: 'blur(10px)'
-                    }}
-                />
+                {Icon && <Icon size={24} color="white" strokeWidth={2} />}
             </div>
             <h3
                 className="mb-2 text-lg font-semibold"

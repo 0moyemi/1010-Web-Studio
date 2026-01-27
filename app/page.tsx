@@ -1,38 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "./components/Header";
 import { Card } from "./components/Card";
 import { PainPoint } from "./components/PainPoint";
 import { GlassCard } from "./components/GlassCard";
 import { Modal } from "./components/Modal";
+import { ShieldAlert, TrendingDown, ImageOff, Store, Code, ShieldCheck, Rocket, TrendingUp, Ear, Wrench, Headset } from "lucide-react";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      }
+    );
+
+    const elements = document.querySelectorAll(".scroll-fade-in");
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      elements.forEach((el) => observer.unobserve(el));
+    };
+  }, []);
+
   const painPoints = [
-    "Customers don't trust online sellers",
-    "WhatsApp chats don't scale",
-    "Hard to showcase products clearly",
-    "Business looks less professional online",
+    { text: "Customers don't trust online sellers", icon: ShieldAlert },
+    { text: "WhatsApp chats don't scale", icon: TrendingDown },
+    { text: "Hard to showcase products clearly", icon: ImageOff },
+    { text: "Business looks less professional online", icon: Store },
   ];
 
   const services = [
     {
       title: "Web Development",
       description: "Custom websites built to convert visitors into customers",
+      icon: Code,
     },
     {
       title: "Security",
       description: "SSL certificates and secure hosting to build trust",
+      icon: ShieldCheck,
     },
     {
       title: "SEO & Performance",
       description: "Fast loading and Google-friendly sites that get found",
+      icon: Rocket,
     },
     {
       title: "Marketing Support",
       description: "Analytics and tools to understand your audience",
+      icon: TrendingUp,
     },
   ];
 
@@ -42,24 +70,28 @@ export default function Home() {
       title: "Understand your business",
       description:
         "We listen to your goals, audience, and challenges before touching any code",
+      icon: Ear,
     },
     {
       number: "02",
       title: "Build & optimize",
       description:
         "Clean design, fast performance, and mobile-first development",
+      icon: Wrench,
     },
     {
       number: "03",
       title: "Secure & launch",
       description:
         "SSL setup, testing, and a smooth launch with zero downtime",
+      icon: Rocket,
     },
     {
       number: "04",
       title: "Support & growth",
       description:
         "Ongoing updates, monitoring, and help whenever you need it",
+      icon: Headset,
     },
   ];
 
@@ -91,7 +123,7 @@ export default function Home() {
           </p>
           <a
             href="#deliver"
-            className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press"
+            className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press float-animation glow-on-hover"
             style={{
               background: 'var(--glass-bg)',
               borderColor: 'var(--glass-border)',
@@ -107,7 +139,7 @@ export default function Home() {
         <div className="section-divider mb-20"></div>
 
         {/* Pain Points Section */}
-        <section className="py-14 lg:py-28">
+        <section className="py-14 lg:py-28 scroll-fade-in">
           <div className="mx-auto max-w-3xl px-6">
             <h2
               className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -128,7 +160,7 @@ export default function Home() {
             <GlassCard className="p-8">
               <div className="space-y-6">
                 {painPoints.map((point, index) => (
-                  <PainPoint key={index} text={point} />
+                  <PainPoint key={index} text={point.text} icon={point.icon} />
                 ))}
               </div>
             </GlassCard>
@@ -139,7 +171,7 @@ export default function Home() {
         <div className="section-divider mb-20"></div>
 
         {/* What We Deliver Section */}
-        <section id="deliver" className="py-20 lg:py-28">
+        <section id="deliver" className="py-20 lg:py-28 scroll-fade-in">
           <div className="mx-auto max-w-7xl px-6">
             <h2
               className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -164,6 +196,7 @@ export default function Home() {
                   key={index}
                   title={service.title}
                   description={service.description}
+                  icon={service.icon}
                   className="w-80 snap-center"
                   enableScrollScale={true}
                 />
@@ -176,7 +209,7 @@ export default function Home() {
         <div className="section-divider mb-20"></div>
 
         {/* Proof Section */}
-        <section className="py-20 lg:py-28">
+        <section className="py-20 lg:py-28 scroll-fade-in">
           <div className="mx-auto max-w-4xl px-6">
             <h2
               className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -247,7 +280,7 @@ export default function Home() {
         <div className="section-divider mb-20"></div>
 
         {/* Process Section */}
-        <section className="py-20 lg:py-28">
+        <section className="py-20 lg:py-28 scroll-fade-in">
           <div className="mx-auto max-w-4xl px-6">
             <h2
               className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -267,44 +300,40 @@ export default function Home() {
             </p>
             <GlassCard className="p-8">
               <div className="grid gap-6 sm:grid-cols-2">
-                {processSteps.map((step, index) => (
-                  <div key={index} className="space-y-2">
-                    <div
-                      className="text-sm font-medium"
-                      style={{ color: 'var(--highlight)' }}
-                    >
-                      {step.number}
-                    </div>
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-lg"
-                      style={{
-                        background: 'linear-gradient(135deg, var(--card-background-light) 0%, var(--highlight) 100%)',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
-                      }}
-                    >
-                      {/* Icon placeholder */}
+                {processSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <div key={index} className="space-y-2">
                       <div
-                        className="h-6 w-6 rounded"
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--highlight)' }}
+                      >
+                        {step.number}
+                      </div>
+                      <div
+                        className="flex h-12 w-12 items-center justify-center rounded-lg icon-hover-bounce transition-transform"
                         style={{
-                          background: 'rgba(255, 255, 255, 0.2)',
-                          backdropFilter: 'blur(10px)'
+                          background: 'linear-gradient(135deg, var(--card-background-light) 0%, var(--highlight) 100%)',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
                         }}
-                      />
+                      >
+                        <Icon size={24} color="white" strokeWidth={2} />
+                      </div>
+                      <h3
+                        className="text-lg font-semibold"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        {step.title}
+                      </h3>
+                      <p
+                        className="text-sm leading-relaxed"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        {step.description}
+                      </p>
                     </div>
-                    <h3
-                      className="text-lg font-semibold"
-                      style={{ color: 'var(--text-primary)' }}
-                    >
-                      {step.title}
-                    </h3>
-                    <p
-                      className="text-sm leading-relaxed"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      {step.description}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </GlassCard>
           </div>
