@@ -10,9 +10,10 @@ interface CardProps {
     className?: string;
     enableScrollScale?: boolean;
     icon?: LucideIcon;
+    imageLike?: boolean;
 }
 
-export function Card({ title, description, number, className = "", enableScrollScale = false, icon: Icon }: CardProps) {
+export function Card({ title, description, number, className = "", enableScrollScale = false, icon: Icon, imageLike = false }: CardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
 
@@ -65,15 +66,25 @@ export function Card({ title, description, number, className = "", enableScrollS
                     {number}
                 </div>
             )}
-            <div
-                className="flex h-12 w-12 items-center justify-center rounded-lg mb-4 icon-hover-bounce transition-transform"
-                style={{
+            {/** Image-like large icon area (optional) */}
+            {imageLike ? (
+                <div className="mb-4 rounded-xl p-4 flex items-center justify-center" style={{
                     background: 'linear-gradient(135deg, var(--card-background-light) 0%, var(--highlight) 100%)',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
-                }}
-            >
-                {Icon && <Icon size={24} color="white" strokeWidth={2} />}
-            </div>
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.25)'
+                }}>
+                    {Icon && <Icon size={48} color="white" strokeWidth={2} />}
+                </div>
+            ) : (
+                <div
+                    className="flex h-12 w-12 items-center justify-center rounded-lg mb-4 icon-hover-bounce transition-transform"
+                    style={{
+                        background: 'linear-gradient(135deg, var(--card-background-light) 0%, var(--highlight) 100%)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+                    }}
+                >
+                    {Icon && <Icon size={24} color="white" strokeWidth={2} />}
+                </div>
+            )}
             <h3
                 className="mb-2 text-lg font-semibold"
                 style={{ color: 'var(--text-primary)' }}

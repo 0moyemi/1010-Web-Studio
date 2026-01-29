@@ -2,14 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 import { Card } from "./components/Card";
 import { PainPoint } from "./components/PainPoint";
 import { GlassCard } from "./components/GlassCard";
 import { Modal } from "./components/Modal";
-import { ShieldAlert, TrendingDown, ImageOff, Store, Code, ShieldCheck, Rocket, TrendingUp, Ear, Wrench, Headset } from "lucide-react";
+import { SolutionModal, Solution } from "./components/SolutionModal";
+import { MessageSquare, UserX, ListX, CalendarX, MapPinOff, Link, LayoutGrid, Shield, Megaphone, Ear, Layers, TestTube, Rocket, Headset } from "lucide-react";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSolution, setSelectedSolution] = useState<Solution | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -35,33 +38,98 @@ export default function Home() {
   }, []);
 
   const painPoints = [
-    { text: "Customers don't trust online sellers", icon: ShieldAlert },
-    { text: "WhatsApp chats don't scale", icon: TrendingDown },
-    { text: "Hard to showcase products clearly", icon: ImageOff },
-    { text: "Business looks less professional online", icon: Store },
+    { text: "You explain your products over and over again", icon: MessageSquare },
+    { text: `Your customers disappear after "I'll get back to you"`, icon: UserX },
+    { text: "You don't have one clear place to send customers", icon: MapPinOff },
+    { text: "You struggle to post and follow up consistently", icon: CalendarX },
+    { text: "You depend only on your contact list", icon: ListX },
   ];
 
   const services = [
     {
-      title: "Web Development",
-      description: "Custom websites built to convert visitors into customers",
-      icon: Code,
+      title: "One Simple Business Link",
+      description: "Share your complete product catalog with a single link",
+      icon: Link,
     },
     {
-      title: "Security",
-      description: "SSL certificates and secure hosting to build trust",
-      icon: ShieldCheck,
+      title: "Clean Product Display",
+      description: "Customers see everything clearly without needing to ask you",
+      icon: LayoutGrid,
     },
     {
-      title: "SEO & Performance",
-      description: "Fast loading and Google-friendly sites that get found",
-      icon: Rocket,
+      title: "Trustworthy Presence",
+      description: "Customers trust you're real and reachable, not just another scammer",
+      icon: Shield,
     },
     {
-      title: "Marketing Support",
-      description: "Analytics and tools to understand your audience",
-      icon: TrendingUp,
+      title: "WhatsApp Ads Support",
+      description: "More people discover your business on WhatsApp",
+      icon: Megaphone,
     },
+    {
+      title: "Follow-up Support",
+      description: "We ensure everything runs smoothly after launch",
+      icon: Headset,
+    },
+  ];
+
+  const solutions: Solution[] = [
+    {
+      title: "One Simple Business Link",
+      pain: [
+        "You explain your products over and over again",
+        "Customers get confused, ask too many questions, and still say 'I'll get back to you'",
+        "There's no one clear place to send people"
+      ],
+      solution: [
+        "We build a single business link that shows everything you sell in a clean, simple way — products, prices, details, and credibility",
+        "You can easily upload or update products yourself anytime, without stress or technical headaches"
+      ],
+      outcome: [
+        "Customers can see everything you offer in one place, anytime",
+        "You stay in control, update your products when it's convenient, and go on with your day"
+      ],
+      images: [
+        { src: "/products-showcase-1.jpg", alt: "Product showcase example 1" },
+        { src: "/products-showcase-2.jpg", alt: "Product showcase example 2" },
+        { src: "/products-showcase-3.jpg", alt: "Product showcase example 3" },
+        { src: "/products-showcase-4.jpg", alt: "Product showcase example 4" }
+      ]
+    },
+    {
+      title: "Consistency System",
+      pain: [
+        "You want to post and follow up consistently, but life gets busy",
+        "You forget, lose motivation, or don't know what to say"
+      ],
+      solution: [
+        "We set up a simple consistency system with ready-made templates for daily status updates, weekly broadcasts, and basic sales tracking"
+      ],
+      outcome: [
+        "Your business stays visible and active without you thinking about what to post every day",
+        "Consistency becomes automatic, not stressful"
+      ],
+      images: [
+        { src: "/status-consistency.jpg", alt: "Status consistency system" }
+      ]
+    },
+    {
+      title: "Follow-Up System",
+      pain: [
+        "Customers say 'I'll get back to you' and disappear",
+        "You don't know how or when to follow up without sounding pushy"
+      ],
+      solution: [
+        "We provide smart follow-up message templates for order confirmation, delivery updates, reminders, and gentle check-ins — ready to copy and send"
+      ],
+      outcome: [
+        "Customers are reminded at the right time, without pressure",
+        "More conversations move forward instead of going cold"
+      ],
+      images: [
+        { src: "/messaging-template.jpg", alt: "Follow-up message templates" }
+      ]
+    }
   ];
 
   const processSteps = [
@@ -69,28 +137,35 @@ export default function Home() {
       number: "01",
       title: "Understand your business",
       description:
-        "We listen to your goals, audience, and challenges before touching any code",
+        "We learn about your products, customers, and what makes your business unique",
       icon: Ear,
     },
     {
       number: "02",
-      title: "Build & optimize",
+      title: "Organize everything clearly",
       description:
-        "Clean design, fast performance, and mobile-first development",
-      icon: Wrench,
+        "We structure your products in a way that's easy to browse and understand",
+      icon: Layers,
     },
     {
       number: "03",
-      title: "Secure & launch",
+      title: "Set up your showcase",
       description:
-        "SSL setup, testing, and a smooth launch with zero downtime",
-      icon: Rocket,
+        "We build your product display with clean design and smooth functionality",
+      icon: LayoutGrid,
     },
     {
       number: "04",
-      title: "Support & growth",
+      title: "Test and make it smooth",
       description:
-        "Ongoing updates, monitoring, and help whenever you need it",
+        "We ensure everything works perfectly before you start sharing",
+      icon: TestTube,
+    },
+    {
+      number: "05",
+      title: "Support after launch",
+      description:
+        "We're here to help with updates, questions, and keeping things running",
       icon: Headset,
     },
   ];
@@ -110,16 +185,13 @@ export default function Home() {
               lineHeight: '1.1'
             }}
           >
-            Your business is <span className="text-gradient-accent">fire</span>,
-            <br />
-            our service is the <span className="text-gradient-accent">fuel</span>.
+            Display everything you sell, <span className="text-gradient-accent">stress-free;</span> in one link.
           </h1>
           <p
             className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed sm:text-xl text-shadow-sm"
-            style={{ color: 'var(--text-secondary)' }}
+            style={{ color: 'var(--text-primary)', opacity: 0.95 }}
           >
-            We design and build professional websites that make selling and
-            marketing easier for small businesses.
+            Why stress yourself explaining your products to every new customer, when you can just send them one link?
           </p>
           <a
             href="#deliver"
@@ -155,7 +227,7 @@ export default function Home() {
               className="mb-12 text-lg text-shadow-sm"
               style={{ color: 'var(--text-secondary)' }}
             >
-              These are problems we help solve every day.
+              These are problems we will help you solve.
             </p>
             <GlassCard className="p-8">
               <div className="space-y-6">
@@ -170,109 +242,81 @@ export default function Home() {
         {/* Section Divider */}
         <div className="section-divider mb-20"></div>
 
-        {/* What We Deliver Section */}
-        <section id="deliver" className="py-20 lg:py-28 scroll-fade-in">
-          <div className="mx-auto max-w-7xl px-6">
-            <h2
-              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
-              style={{
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.01em',
-                lineHeight: '1.2'
-              }}
-            >
-              What we deliver
-            </h2>
-            <p
-              className="mb-12 max-w-2xl text-lg text-shadow-sm"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Everything you need to build trust and grow your business online.
-            </p>
-            {/* Horizontal scroll container */}
-            <div className="hide-scrollbar -mx-6 flex gap-6 overflow-x-auto px-6 py-8 pb-4 snap-x snap-mandatory">
-              {services.map((service, index) => (
-                <Card
-                  key={index}
-                  title={service.title}
-                  description={service.description}
-                  icon={service.icon}
-                  className="w-80 snap-center"
-                  enableScrollScale={true}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Section Divider */}
-        <div className="section-divider mb-20"></div>
-
-        {/* Proof Section */}
+        {/* Solutions Showcase Section */}
         <section className="py-20 lg:py-28 scroll-fade-in">
-          <div className="mx-auto max-w-4xl px-6">
+          <div className="mx-auto max-w-6xl px-6">
             <h2
-              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
+              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm text-center"
               style={{
                 color: 'var(--text-primary)',
                 letterSpacing: '-0.01em',
                 lineHeight: '1.2'
               }}
             >
-              Built for real businesses
+              View Our Work
             </h2>
             <p
-              className="mb-12 text-lg text-shadow-sm"
+              className="mb-4 text-lg text-shadow-sm text-center"
               style={{ color: 'var(--text-secondary)' }}
             >
-              See how we help companies grow with professional websites.
+              How we remove stress from selling online
+            </p>
+            <p
+              className="mb-12 text-sm text-center italic"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              Click any solution to see the full details and screenshots
             </p>
 
-            <GlassCard className="p-8 mb-8">
-              <h3
-                className="mb-3 text-2xl font-semibold"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                Artisan Bakery Co.
-              </h3>
-              <p
-                className="mb-6 leading-relaxed"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                A clean, modern website with online ordering, product gallery,
-                and integrated analytics. Helped increase online orders by 40%
-                in the first month.
-              </p>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="text-base font-medium transition-colors hover:underline"
-                style={{ color: 'var(--highlight)' }}
-              >
-                View case study →
-              </button>
-            </GlassCard>
+            <GlassCard className="p-8">
+              <div className="grid gap-8 md:grid-cols-3">
+                {solutions.map((solution, index) => (
+                  <div
+                    key={index}
+                    className="cursor-pointer transition-all hover:scale-105 p-4 rounded-lg"
+                    style={{
+                      background: 'var(--card-background-light)',
+                      border: '1px solid var(--glass-border)',
+                    }}
+                    onClick={() => setSelectedSolution(solution)}
+                  >
+                    <h3
+                      className="mb-3 text-lg font-semibold"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      {solution.title}
+                    </h3>
+                    <p
+                      className="mb-4 text-sm leading-relaxed"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      {solution.pain[0]}
+                    </p>
+                    <button
+                      className="text-sm font-medium transition-colors hover:underline"
+                      style={{ color: 'var(--highlight)' }}
+                    >
+                      View solution →
+                    </button>
+                  </div>
+                ))}
+              </div>
 
-            <div
-              className="rounded-xl p-6 border backdrop-blur-xl"
-              style={{
-                background: 'var(--glass-bg)',
-                borderColor: 'var(--glass-border)',
-                boxShadow: '0 4px 16px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-              }}
-            >
-              <p
-                className="text-center text-sm"
-                style={{ color: 'var(--text-secondary)' }}
+              <div
+                className="mt-8 pt-6 border-t text-center"
+                style={{ borderColor: 'var(--glass-border)' }}
               >
-                <span
-                  className="font-semibold"
-                  style={{ color: 'var(--highlight)' }}
+                <p
+                  className="text-sm"
+                  style={{ color: 'var(--text-secondary)' }}
                 >
-                  Founding Client Discount:
-                </span>{" "}
-                We're offering special rates for our first 10 clients. Build trust with a professional online presence.
-              </p>
-            </div>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    These are working systems, ready for you.
+                  </span>
+                  {" "}We're offering special rates for our first 10 clients — built, tested, and customized for your business.
+                </p>
+              </div>
+            </GlassCard>
           </div>
         </section>
 
@@ -356,14 +400,13 @@ export default function Home() {
                 lineHeight: '1.2'
               }}
             >
-              Ready to build something professional?
+              Tired of explaining the same thing over and over?
             </h2>
             <p
               className="mb-10 text-lg leading-relaxed text-shadow-sm"
               style={{ color: 'var(--text-secondary)' }}
             >
-              Let's talk about your business and see if we're a good fit. No
-              pressure, no sales pitch—just an honest conversation.
+              Let's set up your link so customers can browse everything without bothering you. Just send one link and watch them order on their own time.
             </p>
             <a
               href="https://wa.me/1234567890"
@@ -383,74 +426,14 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer
-        className="border-t py-12 mt-20 backdrop-blur-xl"
-        style={{
-          borderColor: 'var(--glass-border)',
-          background: 'var(--glass-bg)',
-          boxShadow: 'inset 0 1px 0 var(--glass-glow)'
-        }}
-      >
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <p
-            className="mb-2 text-lg font-semibold text-shadow-sm"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            1010 Web Studio
-          </p>
-          <p
-            className="text-sm"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            © 2026 · Built with care by 1010 Web Studio
-          </p>
-        </div>
-      </footer>
+      <Footer />
 
-      {/* Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <div className="p-8">
-          <h3
-            className="mb-4 text-2xl font-bold"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            Case Study: Artisan Bakery Co.
-          </h3>
-          <div className="space-y-4">
-            <p style={{ color: 'var(--text-secondary)' }}>
-              <strong>Challenge:</strong> The bakery relied on phone orders and had no online presence.
-              Customers couldn't browse products or place orders outside business hours.
-            </p>
-            <p style={{ color: 'var(--text-secondary)' }}>
-              <strong>Solution:</strong> We built a modern, mobile-first website with a product gallery,
-              online ordering system, and integrated payment processing.
-            </p>
-            <p style={{ color: 'var(--text-secondary)' }}>
-              <strong>Results:</strong> 40% increase in orders within the first month, with 60% of new
-              customers finding them through Google search. The owner now spends less time on the phone
-              and more time baking.
-            </p>
-            <div
-              className="mt-6 rounded-lg p-4"
-              style={{ backgroundColor: 'var(--card-background-light)' }}
-            >
-              <p
-                className="text-sm italic"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                "1010 Web Studio understood exactly what we needed. The website pays for itself every week."
-              </p>
-              <p
-                className="mt-2 text-xs"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                — Sarah M., Owner
-              </p>
-            </div>
-          </div>
-        </div>
-      </Modal>
+      {/* Solution Modal */}
+      <SolutionModal
+        isOpen={selectedSolution !== null}
+        onClose={() => setSelectedSolution(null)}
+        solution={selectedSolution}
+      />
     </div>
   );
 }
