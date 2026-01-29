@@ -119,14 +119,14 @@ export function SolutionModal({ isOpen, onClose, solution }: SolutionModalProps)
                                         >
                                             Pain
                                         </h4>
-                                        <ul className="space-y-2">
+                                        <ul className="space-y-2 list-none">
                                             {solution.pain.map((item, index) => (
                                                 <li
                                                     key={index}
                                                     className="text-sm leading-relaxed"
                                                     style={{ color: 'var(--text-secondary)' }}
                                                 >
-                                                    • {item}
+                                                    {item}
                                                 </li>
                                             ))}
                                         </ul>
@@ -140,14 +140,14 @@ export function SolutionModal({ isOpen, onClose, solution }: SolutionModalProps)
                                         >
                                             Solution
                                         </h4>
-                                        <ul className="space-y-2">
+                                        <ul className="space-y-2 list-none">
                                             {solution.solution.map((item, index) => (
                                                 <li
                                                     key={index}
                                                     className="text-sm leading-relaxed"
                                                     style={{ color: 'var(--text-secondary)' }}
                                                 >
-                                                    • {item}
+                                                    {item}
                                                 </li>
                                             ))}
                                         </ul>
@@ -161,14 +161,14 @@ export function SolutionModal({ isOpen, onClose, solution }: SolutionModalProps)
                                         >
                                             Outcome
                                         </h4>
-                                        <ul className="space-y-2">
+                                        <ul className="space-y-2 list-none">
                                             {solution.outcome.map((item, index) => (
                                                 <li
                                                     key={index}
                                                     className="text-sm leading-relaxed"
                                                     style={{ color: 'var(--text-secondary)' }}
                                                 >
-                                                    • {item}
+                                                    {item}
                                                 </li>
                                             ))}
                                         </ul>
@@ -186,6 +186,7 @@ export function SolutionModal({ isOpen, onClose, solution }: SolutionModalProps)
                                             alt={solution.images[currentImageIndex].alt}
                                             fill
                                             className="object-cover"
+                                            quality={95}
                                             priority
                                         />
                                         {/* Expand button */}
@@ -266,6 +267,10 @@ export function SolutionModal({ isOpen, onClose, solution }: SolutionModalProps)
                 onClose={() => setLightboxOpen(false)}
                 imageSrc={solution.images[currentImageIndex].src}
                 imageAlt={solution.images[currentImageIndex].alt}
+                onNext={() => setCurrentImageIndex((prev) => (prev + 1) % solution.images.length)}
+                onPrev={() => setCurrentImageIndex((prev) => (prev - 1 + solution.images.length) % solution.images.length)}
+                hasNext={solution.images.length > 1}
+                hasPrev={solution.images.length > 1}
             />
         </>
     );

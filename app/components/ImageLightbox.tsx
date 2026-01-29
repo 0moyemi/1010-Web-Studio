@@ -2,15 +2,29 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageLightboxProps {
     isOpen: boolean;
     onClose: () => void;
     imageSrc: string;
     imageAlt: string;
+    onNext?: () => void;
+    onPrev?: () => void;
+    hasNext?: boolean;
+    hasPrev?: boolean;
 }
 
-export function ImageLightbox({ isOpen, onClose, imageSrc, imageAlt }: ImageLightboxProps) {
+export function ImageLightbox({
+    isOpen,
+    onClose,
+    imageSrc,
+    imageAlt,
+    onNext,
+    onPrev,
+    hasNext = false,
+    hasPrev = false
+}: ImageLightboxProps) {
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -18,19 +32,25 @@ export function ImageLightbox({ isOpen, onClose, imageSrc, imageAlt }: ImageLigh
             document.body.style.overflow = "unset";
         }
 
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
+        const handleKeyPress = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                onClose();
+            } else if (e.key === "ArrowRight" && hasNext && onNext) {
+                onNext();
+            } else if (e.key === "ArrowLeft" && hasPrev && onPrev) {
+                onPrev();
+            }
         };
 
         if (isOpen) {
-            window.addEventListener("keydown", handleEscape);
+            window.addEventListener("keydown", handleKeyPress);
         }
 
         return () => {
             document.body.style.overflow = "unset";
-            window.removeEventListener("keydown", handleEscape);
+            window.removeEventListener("keydown", handleKeyPress);
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, onClose, onNext, onPrev, hasNext, hasPrev]);
 
     if (!isOpen) return null;
 
@@ -66,6 +86,47 @@ export function ImageLightbox({ isOpen, onClose, imageSrc, imageAlt }: ImageLigh
                     <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
             </button>
+
+            {/* Previous Button */}
+            {hasPrev && onPrev && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onPrev();
+                    }}
+                    className="absolute left-6 top-1/2 -translate-y-1/2 z-10 rounded-full p-3 transition-all hover:scale-110 active:scale-95"
+                    style={{
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        backdropFilter: 'blur(8px)',
+                        border: '2px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)'
+                    }}
+                    aria-label="Previous image"
+                >
+                    <ChevronLeft size={28} color="white" strokeWidth={2.5} />
+                </button>
+            )}
+
+            {/* Next Button */}
+            {hasNext && onNext && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onNext();
+                    }}
+                    className="absolute right-6 top-1/2 -translate-y-1/2 z-10 rounded-full p-3 transition-all hover:scale-110 active:scale-95"
+                    style={{
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        backdropFilter: 'blur(8px)',
+                        border: '2px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)'
+                    }}
+                    aria-label="Next image"
+                >
+                    <ChevronRight size={28} color="white" strokeWidth={2.5} />
+                </button>
+            )}
+
             <div
                 className="relative max-h-[90vh] max-w-[90vw]"
                 onClick={(e) => e.stopPropagation()}
@@ -76,6 +137,7 @@ export function ImageLightbox({ isOpen, onClose, imageSrc, imageAlt }: ImageLigh
                     width={1920}
                     height={1080}
                     className="h-auto w-auto max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+                    quality={100}
                     priority
                 />
             </div>

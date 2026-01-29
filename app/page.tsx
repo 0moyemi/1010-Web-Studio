@@ -77,59 +77,71 @@ export default function Home() {
     {
       title: "One Simple Business Link",
       pain: [
-        "You explain your products over and over again",
-        "Customers get confused, ask too many questions, and still say 'I'll get back to you'",
-        "There's no one clear place to send people"
+        "→ You explain your products over and over again",
+        `→ Customers get confused, ask too many questions, and still say "I'll get back to you"`,
+        "→ There's no one clear place to send people"
       ],
       solution: [
-        "We build a single business link that shows everything you sell in a clean, simple way — products, prices, details, and credibility",
-        "You can easily upload or update products yourself anytime, without stress or technical headaches"
+        "→ We give you a single business link that shows everything you sell in a clean, simple way",
+        "→ You can easily upload or update products yourself anytime, without stress or technical headaches"
       ],
       outcome: [
-        "Customers can see everything you offer in one place, anytime",
-        "You stay in control, update your products when it's convenient, and go on with your day"
+        "→ Customers can see everything you offer in one place, anytime",
+        "→ You stay in control, update your products when it's convenient, and go on with your day"
       ],
       images: [
         { src: "/products-showcase-1.jpg", alt: "Product showcase example 1" },
         { src: "/products-showcase-2.jpg", alt: "Product showcase example 2" },
         { src: "/products-showcase-3.jpg", alt: "Product showcase example 3" },
-        { src: "/products-showcase-4.jpg", alt: "Product showcase example 4" }
+        { src: "/products-showcase-4.jpg", alt: "Product showcase example 4" },
+        { src: "/product-showcase-5.jpg", alt: "Product showcase example 5" }
       ]
     },
     {
       title: "Consistency System",
       pain: [
-        "You want to post and follow up consistently, but life gets busy",
-        "You forget, lose motivation, or don't know what to say"
+        "→ You want to post consistently, but life gets busy",
+        "→ You forget who showed interest, which costs you money"
       ],
       solution: [
-        "We set up a simple consistency system with ready-made templates for daily status updates, weekly broadcasts, and basic sales tracking"
+        "→ We set up ready-made templates for daily status updates and weekly broadcasts",
+        "→ Plus a simple tracker to see every pending customer at a glance"
       ],
       outcome: [
-        "Your business stays visible and active without you thinking about what to post every day",
-        "Consistency becomes automatic, not stressful"
+        "→ Your business stays visible without daily stress",
+        "→ You never lose track of interested customers",
+        "→ Consistency becomes automatic, not a burden"
       ],
       images: [
-        { src: "/status-consistency.jpg", alt: "Status consistency system" }
+        { src: "/status-consistency.jpg", alt: "Status consistency system" },
+        { src: "/follow-up-tracker.jpg", alt: "Follow-up tracker for customers who say I'll get back to you" }
       ]
     },
     {
       title: "Follow-Up System",
       pain: [
-        "Customers say 'I'll get back to you' and disappear",
-        "You don't know how or when to follow up without sounding pushy"
+        "→ Customers say 'I'll get back to you' and disappear",
+        "→ You don't know what to say or when without sounding pushy"
       ],
       solution: [
-        "We provide smart follow-up message templates for order confirmation, delivery updates, reminders, and gentle check-ins — ready to copy and send"
+        "→ Smart message templates for different scenarios — gentle check-ins, order confirmations, delivery updates, reminders",
+        "→ Ready to copy and send at the right time"
       ],
       outcome: [
-        "Customers are reminded at the right time, without pressure",
-        "More conversations move forward instead of going cold"
+        "→ Conversations keep moving forward",
+        "→ Lost customers come back",
+        "→ You sound professional, not desperate"
       ],
       images: [
         { src: "/messaging-template.jpg", alt: "Follow-up message templates" }
       ]
     }
+  ];
+
+  const solutionCardSubtexts = [
+    "Do you go through the stress of explaining your products over and over again, to every new customer?",
+    "Do you want to post consistently, but life gets busy?",
+    `Do customers say "I'll get back to you", and never get back to you?`
   ];
 
   const processSteps = [
@@ -194,7 +206,7 @@ export default function Home() {
             Why stress yourself explaining your products to every new customer, when you can just send them one link?
           </p>
           <a
-            href="#deliver"
+            href="#view-work"
             className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press float-animation glow-on-hover"
             style={{
               background: 'var(--glass-bg)',
@@ -203,15 +215,15 @@ export default function Home() {
               boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
             }}
           >
-            See what we build
+            View Our Work
           </a>
         </section>
 
         {/* Section Divider */}
-        <div className="section-divider mb-20"></div>
+        <div className="section-divider my-24"></div>
 
         {/* Pain Points Section */}
-        <section className="py-14 lg:py-28 scroll-fade-in">
+        <section className="py-20 lg:py-28 scroll-fade-in">
           <div className="mx-auto max-w-3xl px-6">
             <h2
               className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -240,10 +252,48 @@ export default function Home() {
         </section>
 
         {/* Section Divider */}
-        <div className="section-divider mb-20"></div>
+        <div className="section-divider my-24"></div>
+
+        {/* What You Get Section */}
+        <section id="deliver" className="py-20 lg:py-28 scroll-fade-in">
+          <div className="mx-auto max-w-7xl px-6">
+            <h2
+              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
+              style={{
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.01em',
+                lineHeight: '1.2'
+              }}
+            >
+              What you get
+            </h2>
+            <p
+              className="mb-12 max-w-2xl text-lg text-shadow-sm"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              Everything you need to stop stressing and start selling with a simple link.
+            </p>
+            {/* Horizontal scroll container */}
+            <div className="hide-scrollbar -mx-6 flex gap-6 overflow-x-auto px-6 py-8 pb-4 snap-x snap-mandatory">
+              {services.map((service, index) => (
+                <Card
+                  key={index}
+                  title={service.title}
+                  description={service.description}
+                  icon={service.icon}
+                  className="w-80 snap-center"
+                  enableScrollScale={true}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section Divider */}
+        <div className="section-divider my-24"></div>
 
         {/* Solutions Showcase Section */}
-        <section className="py-20 lg:py-28 scroll-fade-in">
+        <section id="view-work" className="py-20 lg:py-28 scroll-fade-in">
           <div className="mx-auto max-w-6xl px-6">
             <h2
               className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm text-center"
@@ -269,14 +319,23 @@ export default function Home() {
             </p>
 
             <GlassCard className="p-8">
-              <div className="grid gap-8 md:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {solutions.map((solution, index) => (
                   <div
                     key={index}
-                    className="cursor-pointer transition-all hover:scale-105 p-4 rounded-lg"
+                    className="cursor-pointer transition-all duration-300 hover:scale-[1.02] p-6 rounded-2xl border-l-4 group"
                     style={{
                       background: 'var(--card-background-light)',
                       border: '1px solid var(--glass-border)',
+                      borderLeftColor: 'var(--highlight)',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
                     }}
                     onClick={() => setSelectedSolution(solution)}
                   >
@@ -287,17 +346,17 @@ export default function Home() {
                       {solution.title}
                     </h3>
                     <p
-                      className="mb-4 text-sm leading-relaxed"
+                      className="mb-5 text-sm leading-relaxed"
                       style={{ color: 'var(--text-secondary)' }}
                     >
-                      {solution.pain[0]}
+                      {solutionCardSubtexts[index]}
                     </p>
-                    <button
-                      className="text-sm font-medium transition-colors hover:underline"
+                    <div
+                      className="inline-flex items-center text-sm font-medium transition-all rounded-md px-3 py-1.5 group-hover:bg-white/10"
                       style={{ color: 'var(--highlight)' }}
                     >
                       View solution →
-                    </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -307,13 +366,13 @@ export default function Home() {
                 style={{ borderColor: 'var(--glass-border)' }}
               >
                 <p
-                  className="text-sm"
+                  className="text-sm leading-relaxed"
                   style={{ color: 'var(--text-secondary)' }}
                 >
                   <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    These are working systems, ready for you.
+                    Ready-to-use systems.
                   </span>
-                  {" "}We're offering special rates for our first 10 clients — built, tested, and customized for your business.
+                  {" "}Just plug in, customize, and start using. Our first 5 clients get 20% off. We'd be glad to have you!
                 </p>
               </div>
             </GlassCard>
@@ -321,7 +380,7 @@ export default function Home() {
         </section>
 
         {/* Section Divider */}
-        <div className="section-divider mb-20"></div>
+        <div className="section-divider my-24"></div>
 
         {/* Process Section */}
         <section className="py-20 lg:py-28 scroll-fade-in">
@@ -384,7 +443,7 @@ export default function Home() {
         </section>
 
         {/* Section Divider */}
-        <div className="section-divider mb-20"></div>
+        <div className="section-divider my-24"></div>
 
         {/* Final CTA Section */}
         <section
@@ -409,7 +468,7 @@ export default function Home() {
               Let's set up your link so customers can browse everything without bothering you. Just send one link and watch them order on their own time.
             </p>
             <a
-              href="https://wa.me/1234567890"
+              href="https://wa.me/09040991849"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press"
