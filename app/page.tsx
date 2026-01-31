@@ -468,7 +468,7 @@ export default function Home() {
               Let's set up your link so customers can browse everything without bothering you. Just send one link and watch them order on their own time.
             </p>
             <a
-              href="https://wa.me/09040991849"
+              href="https://wa.me/2349040991849?text=Hi%20Muhammad%2C%20I%20checked%20your%20website%20portfolio%20and%20I%27d%20like%20to%20discuss%20a%20project."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press"
