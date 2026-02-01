@@ -274,7 +274,7 @@ export default function Home() {
               Everything you need to stop stressing and start selling with a simple link.
             </p>
             {/* Horizontal scroll container */}
-            <div className="hide-scrollbar -mx-6 flex gap-6 overflow-x-auto px-6 py-8 pb-4 snap-x snap-mandatory">
+            <div className="scroll-cards-container hide-scrollbar -mx-6 flex gap-6 overflow-x-auto px-6 py-8 pb-4 snap-x snap-mandatory">
               {services.map((service, index) => (
                 <Card
                   key={index}
@@ -372,7 +372,7 @@ export default function Home() {
                   <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                     Ready-to-use systems.
                   </span>
-                  {" "}Just plug in, customize, and start using. Our first 5 clients get 20% off. We'd be glad to have you!
+                  {" "}Just plug in, customize, and start using. Our first 5 clients get the special pre-launch package!
                 </p>
               </div>
             </GlassCard>

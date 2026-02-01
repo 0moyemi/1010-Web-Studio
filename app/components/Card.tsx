@@ -16,22 +16,24 @@ interface CardProps {
 export function Card({ title, description, number, className = "", enableScrollScale = false, icon: Icon, imageLike = false }: CardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
+    const [isCentered, setIsCentered] = useState(false);
 
     useEffect(() => {
         if (!enableScrollScale || !cardRef.current) return;
 
         let rafId: number;
-        let isScrolling = false;
+        let lastScrollTime = 0;
+        const throttleMs = 16; // ~60fps
 
         const handleScroll = () => {
-            if (isScrolling) return;
-            isScrolling = true;
+            const now = Date.now();
+            if (now - lastScrollTime < throttleMs) return;
+            lastScrollTime = now;
+
+            if (rafId) cancelAnimationFrame(rafId);
 
             rafId = requestAnimationFrame(() => {
-                if (!cardRef.current) {
-                    isScrolling = false;
-                    return;
-                }
+                if (!cardRef.current) return;
 
                 const rect = cardRef.current.getBoundingClientRect();
                 const containerCenter = window.innerWidth / 2;
@@ -42,7 +44,10 @@ export function Card({ title, description, number, className = "", enableScrollS
                 // Scale from 0.85 to 1.1 based on distance from center
                 const newScale = Math.max(0.85, Math.min(1.1, 1.1 - (distance / maxDistance) * 0.25));
                 setScale(newScale);
-                isScrolling = false;
+
+                // Consider centered if within 15% of screen center
+                const centerThreshold = window.innerWidth * 0.15;
+                setIsCentered(distance < centerThreshold);
             });
         };
 
@@ -65,14 +70,21 @@ export function Card({ title, description, number, className = "", enableScrollS
     return (
         <div
             ref={cardRef}
-            className={`flex-shrink-0 rounded-2xl border backdrop-blur-xl p-6 hover:scale-105 glass-noise shimmer glow-on-hover ${className}`}
+            className={`flex-shrink-0 rounded-2xl border p-6 hover:scale-105 ${enableScrollScale
+                    ? isCentered
+                        ? 'backdrop-blur-xl glass-noise shimmer glow-on-hover'
+                        : 'backdrop-blur-sm'
+                    : 'backdrop-blur-xl glass-noise shimmer glow-on-hover'
+                } ${className}`}
             style={{
                 background: 'var(--glass-bg)',
                 borderColor: 'var(--glass-border)',
-                boxShadow: '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                boxShadow: enableScrollScale && !isCentered
+                    ? '0 4px 16px var(--glass-shadow)'
+                    : '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                 transform: enableScrollScale ? `scale(${scale})` : undefined,
                 transition: enableScrollScale
-                    ? 'transform 0.15s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.3s ease'
+                    ? 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)'
                     : 'transform 0.3s ease, box-shadow 0.3s ease',
                 willChange: enableScrollScale ? 'transform' : 'auto',
             }}
