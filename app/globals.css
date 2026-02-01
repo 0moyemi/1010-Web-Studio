@@ -274,27 +274,35 @@ html {
 /* Mobile performance optimizations - ONLY for scrolling cards section */
 @media (max-width: 768px) {
 
-  /* Disable expensive effects on non-centered cards during scroll */
-  .scroll-cards-container .backdrop-blur-sm {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+  /* Disable scaling effect on mobile - keep cards at fixed size for smooth scrolling */
+  .scroll-cards-container>* {
+    transform: scale(1) !important;
   }
 
-  /* Reduce noise opacity on mobile - only in scrolling cards */
+  /* Reduce backdrop blur significantly on mobile */
+  .scroll-cards-container .backdrop-blur-xl {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Disable noise texture on mobile */
   .scroll-cards-container .glass-noise::after {
-    opacity: 0.3;
+    display: none;
   }
 
-  /* Disable shimmer animation on mobile to save GPU - only in scrolling cards */
+  /* Disable shimmer animation on mobile */
   .scroll-cards-container .shimmer::before {
     display: none;
   }
 
-  /* Simplify glow effect on mobile - only in scrolling cards */
-  .scroll-cards-container .glow-on-hover:hover {
-    box-shadow:
-      0 8px 32px var(--glass-shadow),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transform: none;
+  /* Simplify shadows on mobile */
+  .scroll-cards-container>* {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  /* Improve scroll performance */
+  .scroll-cards-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 }

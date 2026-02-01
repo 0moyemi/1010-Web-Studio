@@ -16,19 +16,29 @@ interface CardProps {
 export function Card({ title, description, number, className = "", enableScrollScale = false, icon: Icon, imageLike = false }: CardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
-    const [isCentered, setIsCentered] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        if (!enableScrollScale || !cardRef.current) return;
+        // Detect if mobile
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
-        let rafId: number;
-        let lastScrollTime = 0;
-        const throttleMs = 16; // ~60fps
+    useEffect(() => {
+        // Disable scroll scaling on mobile entirely
+        if (!enableScrollScale || !cardRef.current || isMobile) return;
+
+        let rafId: number | null = null;
+        let lastTime = 0;
 
         const handleScroll = () => {
-            const now = Date.now();
-            if (now - lastScrollTime < throttleMs) return;
-            lastScrollTime = now;
+            const now = performance.now();
+            if (now - lastTime < 16) return; // Throttle to 60fps max
+            lastTime = now;
 
             if (rafId) cancelAnimationFrame(rafId);
 
@@ -44,10 +54,6 @@ export function Card({ title, description, number, className = "", enableScrollS
                 // Scale from 0.85 to 1.1 based on distance from center
                 const newScale = Math.max(0.85, Math.min(1.1, 1.1 - (distance / maxDistance) * 0.25));
                 setScale(newScale);
-
-                // Consider centered if within 15% of screen center
-                const centerThreshold = window.innerWidth * 0.15;
-                setIsCentered(distance < centerThreshold);
             });
         };
 
@@ -61,32 +67,21 @@ export function Card({ title, description, number, className = "", enableScrollS
             if (scrollContainer) {
                 scrollContainer.removeEventListener('scroll', handleScroll);
             }
-            if (rafId) {
-                cancelAnimationFrame(rafId);
-            }
+            if (rafId) cancelAnimationFrame(rafId);
         };
-    }, [enableScrollScale]);
+    }, [enableScrollScale, isMobile]);
 
     return (
         <div
             ref={cardRef}
-            className={`flex-shrink-0 rounded-2xl border p-6 hover:scale-105 ${enableScrollScale
-                    ? isCentered
-                        ? 'backdrop-blur-xl glass-noise shimmer glow-on-hover'
-                        : 'backdrop-blur-sm'
-                    : 'backdrop-blur-xl glass-noise shimmer glow-on-hover'
-                } ${className}`}
+            className={`flex-shrink-0 rounded-2xl border backdrop-blur-xl p-6 glass-noise shimmer glow-on-hover ${className}`}
             style={{
                 background: 'var(--glass-bg)',
                 borderColor: 'var(--glass-border)',
-                boxShadow: enableScrollScale && !isCentered
-                    ? '0 4px 16px var(--glass-shadow)'
-                    : '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                transform: enableScrollScale ? `scale(${scale})` : undefined,
-                transition: enableScrollScale
-                    ? 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)'
-                    : 'transform 0.3s ease, box-shadow 0.3s ease',
-                willChange: enableScrollScale ? 'transform' : 'auto',
+                boxShadow: '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                transform: enableScrollScale && !isMobile ? `scale(${scale})` : 'scale(1)',
+                transition: 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.3s ease',
+                willChange: enableScrollScale && !isMobile ? 'transform' : 'auto',
             }}
         >
             {number && (
