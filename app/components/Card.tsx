@@ -20,23 +20,35 @@ export function Card({ title, description, number, className = "", enableScrollS
     useEffect(() => {
         if (!enableScrollScale || !cardRef.current) return;
 
+        let rafId: number;
+        let isScrolling = false;
+
         const handleScroll = () => {
-            if (!cardRef.current) return;
+            if (isScrolling) return;
+            isScrolling = true;
 
-            const rect = cardRef.current.getBoundingClientRect();
-            const containerCenter = window.innerWidth / 2;
-            const cardCenter = rect.left + rect.width / 2;
-            const distance = Math.abs(containerCenter - cardCenter);
-            const maxDistance = window.innerWidth / 2;
+            rafId = requestAnimationFrame(() => {
+                if (!cardRef.current) {
+                    isScrolling = false;
+                    return;
+                }
 
-            // Scale from 0.85 to 1.1 based on distance from center
-            const newScale = Math.max(0.85, Math.min(1.1, 1.1 - (distance / maxDistance) * 0.25));
-            setScale(newScale);
+                const rect = cardRef.current.getBoundingClientRect();
+                const containerCenter = window.innerWidth / 2;
+                const cardCenter = rect.left + rect.width / 2;
+                const distance = Math.abs(containerCenter - cardCenter);
+                const maxDistance = window.innerWidth / 2;
+
+                // Scale from 0.85 to 1.1 based on distance from center
+                const newScale = Math.max(0.85, Math.min(1.1, 1.1 - (distance / maxDistance) * 0.25));
+                setScale(newScale);
+                isScrolling = false;
+            });
         };
 
         const scrollContainer = cardRef.current.parentElement;
         if (scrollContainer) {
-            scrollContainer.addEventListener('scroll', handleScroll);
+            scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
             handleScroll(); // Initial call
         }
 
@@ -44,18 +56,25 @@ export function Card({ title, description, number, className = "", enableScrollS
             if (scrollContainer) {
                 scrollContainer.removeEventListener('scroll', handleScroll);
             }
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
         };
     }, [enableScrollScale]);
 
     return (
         <div
             ref={cardRef}
-            className={`flex-shrink-0 rounded-2xl border backdrop-blur-xl p-6 transition-all hover:scale-105 glass-noise shimmer glow-on-hover ${className}`}
+            className={`flex-shrink-0 rounded-2xl border backdrop-blur-xl p-6 hover:scale-105 glass-noise shimmer glow-on-hover ${className}`}
             style={{
                 background: 'var(--glass-bg)',
                 borderColor: 'var(--glass-border)',
                 boxShadow: '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                 transform: enableScrollScale ? `scale(${scale})` : undefined,
+                transition: enableScrollScale
+                    ? 'transform 0.15s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.3s ease'
+                    : 'transform 0.3s ease, box-shadow 0.3s ease',
+                willChange: enableScrollScale ? 'transform' : 'auto',
             }}
         >
             {number && (
