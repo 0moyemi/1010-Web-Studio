@@ -10,15 +10,20 @@ export default function FirstLoadAnimation() {
     useEffect(() => {
         // Check if animation has already played in this session
         const hasAnimated = sessionStorage.getItem('firstLoadAnimationPlayed');
+        const pageContent = document.getElementById('page-content');
 
         if (hasAnimated) {
             // Animation already played, ensure body is scrollable and content is visible
             document.body.style.overflow = 'auto';
-            const pageContent = document.getElementById('page-content');
             if (pageContent) {
-                pageContent.style.opacity = '1';
+                pageContent.style.display = 'block';
             }
             return;
+        }
+
+        // Hide page content during animation
+        if (pageContent) {
+            pageContent.style.display = 'none';
         }
 
         // Show animation and mark as played IMMEDIATELY
@@ -65,8 +70,9 @@ export default function FirstLoadAnimation() {
                 // Show page content during animation
                 const pageContent = document.getElementById('page-content');
                 if (pageContent) {
-                    gsap.to(pageContent, {
-                        opacity: 1,
+                    pageContent.style.display = 'block';
+                    gsap.from(pageContent, {
+                        opacity: 0,
                         duration: 0.5,
                         delay: 0.3
                     });
@@ -187,8 +193,9 @@ export default function FirstLoadAnimation() {
 
                     const pageContent = document.getElementById('page-content');
                     if (pageContent) {
-                        gsap.to(pageContent, {
-                            opacity: 1,
+                        pageContent.style.display = 'block';
+                        gsap.from(pageContent, {
+                            opacity: 0,
                             duration: 0.5,
                             delay: 0.3
                         });

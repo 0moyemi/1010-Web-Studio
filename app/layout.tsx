@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import FirstLoadAnimation from "./components/FirstLoadAnimation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,10 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <FirstLoadAnimation />
-        <div id="page-content" style={{ opacity: 0 }}>
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );

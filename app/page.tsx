@@ -8,6 +8,7 @@ import { PainPoint } from "./components/PainPoint";
 import { GlassCard } from "./components/GlassCard";
 import { Modal } from "./components/Modal";
 import { SolutionModal, Solution } from "./components/SolutionModal";
+import FirstLoadAnimation from "./components/FirstLoadAnimation";
 import { MessageSquare, UserX, ListX, CalendarX, MapPinOff, Link, LayoutGrid, Shield, Megaphone, Ear, Layers, TestTube, Rocket, Headset } from "lucide-react";
 
 export default function Home() {
@@ -183,316 +184,325 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen relative z-10">
-      <Header />
+    <>
+      <FirstLoadAnimation />
+      <div id="page-content">
+        <div className="min-h-screen relative z-10">
+          <Header />
 
-      <main>
-        {/* Hero Section */}
-        <section className="mx-auto max-w-4xl px-6 py-15 text-center lg:py-32 fade-in-up">
-          <h1
-            className="mx-auto mb-6 max-w-3xl text-3xl font-bold sm:text-5xl lg:text-6xl text-shadow-md"
-            style={{
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.02em',
-              lineHeight: '1.1'
-            }}
-          >
-            Display everything you sell, <span className="text-gradient-accent">stress-free;</span> in one link.
-          </h1>
-          <p
-            className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed sm:text-xl text-shadow-sm"
-            style={{ color: 'var(--text-primary)', opacity: 0.95 }}
-          >
-            Why stress yourself explaining your products to every new customer, when you can just send them one link?
-          </p>
-          <a
-            href="#view-work"
-            className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press float-animation glow-on-hover"
-            style={{
-              background: 'var(--glass-bg)',
-              borderColor: 'var(--glass-border)',
-              color: 'var(--text-primary)',
-              boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-            }}
-          >
-            View Our Work
-          </a>
-        </section>
-
-        {/* Section Divider */}
-        <div className="section-divider my-24"></div>
-
-        {/* Pain Points Section */}
-        <section className="py-20 lg:py-28 scroll-fade-in">
-          <div className="mx-auto max-w-3xl px-6">
-            <h2
-              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
-              style={{
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.01em',
-                lineHeight: '1.2'
-              }}
-            >
-              Sound familiar?
-            </h2>
-            <p
-              className="mb-12 text-lg text-shadow-sm"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              These are problems we will help you solve.
-            </p>
-            <GlassCard className="p-8">
-              <div className="space-y-6">
-                {painPoints.map((point, index) => (
-                  <PainPoint key={index} text={point.text} icon={point.icon} />
-                ))}
-              </div>
-            </GlassCard>
-          </div>
-        </section>
-
-        {/* Section Divider */}
-        <div className="section-divider my-24"></div>
-
-        {/* What You Get Section */}
-        <section id="deliver" className="py-20 lg:py-28 scroll-fade-in">
-          <div className="mx-auto max-w-7xl px-6">
-            <h2
-              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
-              style={{
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.01em',
-                lineHeight: '1.2'
-              }}
-            >
-              What you get
-            </h2>
-            <p
-              className="mb-12 max-w-2xl text-lg text-shadow-sm"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Everything you need to stop stressing and start selling with a simple link.
-            </p>
-            {/* Horizontal scroll container */}
-            <div className="scroll-cards-container hide-scrollbar -mx-6 flex gap-6 overflow-x-auto px-6 py-8 pb-4 snap-x snap-mandatory">
-              {services.map((service, index) => (
-                <Card
-                  key={index}
-                  title={service.title}
-                  description={service.description}
-                  icon={service.icon}
-                  className="w-80 snap-center"
-                  enableScrollScale={true}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Section Divider */}
-        <div className="section-divider my-24"></div>
-
-        {/* Solutions Showcase Section */}
-        <section id="view-work" className="py-20 lg:py-28 scroll-fade-in">
-          <div className="mx-auto max-w-6xl px-6">
-            <h2
-              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm text-center"
-              style={{
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.01em',
-                lineHeight: '1.2'
-              }}
-            >
-              View Our Work
-            </h2>
-            <p
-              className="mb-4 text-lg text-shadow-sm text-center"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              How we remove stress from selling online
-            </p>
-            <p
-              className="mb-12 text-sm text-center italic"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              Click any solution to see the full details and screenshots
-            </p>
-
-            <GlassCard className="p-8">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {solutions.map((solution, index) => (
-                  <div
-                    key={index}
-                    className="cursor-pointer transition-all duration-300 hover:scale-[1.02] p-6 rounded-2xl border-l-4 group"
-                    style={{
-                      background: 'var(--card-background-light)',
-                      border: '1px solid var(--glass-border)',
-                      borderLeftColor: 'var(--highlight)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                    }}
-                    onClick={() => setSelectedSolution(solution)}
-                  >
-                    <h3
-                      className="mb-3 text-lg font-semibold"
-                      style={{ color: 'var(--text-primary)' }}
-                    >
-                      {solution.title}
-                    </h3>
-                    <p
-                      className="mb-5 text-sm leading-relaxed"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      {solutionCardSubtexts[index]}
-                    </p>
-                    <div
-                      className="inline-flex items-center text-sm font-medium transition-all rounded-md px-3 py-1.5 group-hover:bg-white/10"
-                      style={{ color: 'var(--highlight)' }}
-                    >
-                      View solution →
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div
-                className="mt-8 pt-6 border-t text-center"
-                style={{ borderColor: 'var(--glass-border)' }}
+          <main>
+            {/* Hero Section */}
+            <section className="mx-auto max-w-4xl px-6 py-15 text-center lg:py-32 fade-in-up">
+              <h1
+                className="mx-auto mb-6 max-w-3xl text-3xl font-bold sm:text-5xl lg:text-6xl text-shadow-md"
+                style={{
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.02em',
+                  lineHeight: '1.35'
+                }}
               >
+                <span style={{ whiteSpace: 'nowrap' }}>Display everything you sell,</span>
+                <br />
+                <span className="text-gradient-accent">in one link.</span>
+              </h1>
+              <p
+                className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed sm:text-xl text-shadow-sm"
+                style={{ color: 'var(--text-primary)', opacity: 0.95 }}
+              >
+                Why stress yourself explaining your products to every new customer, when you can just send them one link?
+              </p>
+              <a
+                href="#view-work"
+                className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press float-animation glow-on-hover"
+                style={{
+                  background: 'var(--glass-bg)',
+                  borderColor: 'var(--glass-border)',
+                  color: 'var(--text-primary)',
+                  boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                }}
+              >
+                View Our Work
+              </a>
+            </section>
+
+            {/* Section Divider */}
+            <div className="section-divider my-24"></div>
+
+            {/* Pain Points Section */}
+            <section className="py-20 lg:py-28 scroll-fade-in">
+              <div className="mx-auto max-w-3xl px-6">
+                <h2
+                  className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
+                  style={{
+                    color: 'var(--text-primary)',
+                    letterSpacing: '-0.01em',
+                    lineHeight: '1.2'
+                  }}
+                >
+                  Sound familiar?
+                </h2>
                 <p
-                  className="text-sm leading-relaxed"
+                  className="mb-12 text-lg text-shadow-sm"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    Ready-to-use systems.
-                  </span>
-                  {" "}Just plug in, customize, and start using. Our first 5 clients get the special pre-launch package!
+                  These are problems we will help you solve.
                 </p>
+                <GlassCard className="p-8">
+                  <div className="space-y-6">
+                    {painPoints.map((point, index) => (
+                      <PainPoint key={index} text={point.text} icon={point.icon} />
+                    ))}
+                  </div>
+                </GlassCard>
               </div>
-            </GlassCard>
-          </div>
-        </section>
+            </section>
 
-        {/* Section Divider */}
-        <div className="section-divider my-24"></div>
+            {/* Section Divider */}
+            <div className="section-divider my-24"></div>
 
-        {/* Process Section */}
-        <section className="py-20 lg:py-28 scroll-fade-in">
-          <div className="mx-auto max-w-4xl px-6">
-            <h2
-              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
-              style={{
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.01em',
-                lineHeight: '1.2'
-              }}
-            >
-              How we work
-            </h2>
-            <p
-              className="mb-12 text-lg text-shadow-sm"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              A clear process from start to finish.
-            </p>
-            <GlassCard className="p-8">
-              <div className="grid gap-6 sm:grid-cols-2">
-                {processSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  return (
-                    <div key={index} className="space-y-2">
+            {/* What You Get Section */}
+            <section id="deliver" className="py-20 lg:py-28 scroll-fade-in">
+              <div className="mx-auto max-w-7xl px-6">
+                <h2
+                  className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
+                  style={{
+                    color: 'var(--text-primary)',
+                    letterSpacing: '-0.01em',
+                    lineHeight: '1.2'
+                  }}
+                >
+                  What you get
+                </h2>
+                <p
+                  className="mb-12 max-w-2xl text-lg text-shadow-sm"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Everything you need to stop stressing and start selling with a simple link.
+                </p>
+                {/* Horizontal scroll container */}
+                <div className="scroll-cards-container hide-scrollbar flex gap-5 overflow-x-auto pl-6 pr-6 py-8 pb-4 snap-x snap-mandatory">
+                  {services.map((service, index) => (
+                    <Card
+                      key={index}
+                      title={service.title}
+                      description={service.description}
+                      icon={service.icon}
+                      className="w-72 flex-shrink-0 snap-center !p-5"
+                      enableScrollScale={true}
+                    />
+                  ))}
+                  {/* Spacer for better end scroll */}
+                  <div className="w-6 flex-shrink-0"></div>
+                </div>
+              </div>
+            </section>
+
+            {/* Section Divider */}
+            <div className="section-divider my-24"></div>
+
+            {/* Solutions Showcase Section */}
+            <section id="view-work" className="py-20 lg:py-28 scroll-fade-in">
+              <div className="mx-auto max-w-6xl px-6">
+                <h2
+                  className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm text-center"
+                  style={{
+                    color: 'var(--text-primary)',
+                    letterSpacing: '-0.01em',
+                    lineHeight: '1.2'
+                  }}
+                >
+                  View Our Work
+                </h2>
+                <p
+                  className="mb-4 text-lg text-shadow-sm text-center"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  How we remove stress from selling online
+                </p>
+                <p
+                  className="mb-12 text-sm text-center italic"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  Click any solution to see the full details and screenshots
+                </p>
+
+                <GlassCard className="p-8">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {solutions.map((solution, index) => (
                       <div
-                        className="text-sm font-medium"
-                        style={{ color: 'var(--highlight)' }}
-                      >
-                        {step.number}
-                      </div>
-                      <div
-                        className="flex h-12 w-12 items-center justify-center rounded-lg icon-hover-bounce transition-transform"
+                        key={index}
+                        className="cursor-pointer transition-all duration-300 hover:scale-[1.02] p-6 rounded-2xl border-l-4 group"
                         style={{
-                          background: 'linear-gradient(135deg, var(--card-background-light) 0%, var(--highlight) 100%)',
-                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+                          background: 'var(--card-background-light)',
+                          border: '1px solid var(--glass-border)',
+                          borderLeftColor: 'var(--highlight)',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                        }}
+                        onClick={() => setSelectedSolution(solution)}
                       >
-                        <Icon size={24} color="white" strokeWidth={2} />
+                        <h3
+                          className="mb-3 text-lg font-semibold"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
+                          {solution.title}
+                        </h3>
+                        <p
+                          className="mb-5 text-sm leading-relaxed"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
+                          {solutionCardSubtexts[index]}
+                        </p>
+                        <div
+                          className="inline-flex items-center text-sm font-medium transition-all rounded-md px-3 py-1.5 group-hover:bg-white/10"
+                          style={{ color: 'var(--highlight)' }}
+                        >
+                          View solution →
+                        </div>
                       </div>
-                      <h3
-                        className="text-lg font-semibold"
-                        style={{ color: 'var(--text-primary)' }}
-                      >
-                        {step.title}
-                      </h3>
-                      <p
-                        className="text-sm leading-relaxed"
-                        style={{ color: 'var(--text-secondary)' }}
-                      >
-                        {step.description}
-                      </p>
-                    </div>
-                  );
-                })}
+                    ))}
+                  </div>
+
+                  <div
+                    className="mt-8 pt-6 border-t text-center"
+                    style={{ borderColor: 'var(--glass-border)' }}
+                  >
+                    <p
+                      className="text-sm leading-relaxed"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                        Ready-to-use systems.
+                      </span>
+                      {" "}Just plug in, customize, and start using. Our first 5 clients get the special pre-launch package!
+                    </p>
+                  </div>
+                </GlassCard>
               </div>
-            </GlassCard>
-          </div>
-        </section>
+            </section>
 
-        {/* Section Divider */}
-        <div className="section-divider my-24"></div>
+            {/* Section Divider */}
+            <div className="section-divider my-24"></div>
 
-        {/* Final CTA Section */}
-        <section
-          id="contact"
-          className="pt-15  lg:py-28"
-        >
-          <div className="mx-auto max-w-3xl px-6 text-center">
-            <h2
-              className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
-              style={{
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.01em',
-                lineHeight: '1.2'
-              }}
+            {/* Process Section */}
+            <section className="py-20 lg:py-28 scroll-fade-in">
+              <div className="mx-auto max-w-4xl px-6">
+                <h2
+                  className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
+                  style={{
+                    color: 'var(--text-primary)',
+                    letterSpacing: '-0.01em',
+                    lineHeight: '1.2'
+                  }}
+                >
+                  How we work
+                </h2>
+                <p
+                  className="mb-12 text-lg text-shadow-sm"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  A clear process from start to finish.
+                </p>
+                <GlassCard className="p-8">
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {processSteps.map((step, index) => {
+                      const Icon = step.icon;
+                      return (
+                        <div key={index} className="space-y-2">
+                          <div
+                            className="text-sm font-medium"
+                            style={{ color: 'var(--highlight)' }}
+                          >
+                            {step.number}
+                          </div>
+                          <div
+                            className="flex h-12 w-12 items-center justify-center rounded-lg icon-hover-bounce transition-transform"
+                            style={{
+                              background: 'linear-gradient(135deg, var(--card-background-light) 0%, var(--highlight) 100%)',
+                              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+                            }}
+                          >
+                            <Icon size={24} color="white" strokeWidth={2} />
+                          </div>
+                          <h3
+                            className="text-lg font-semibold"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {step.title}
+                          </h3>
+                          <p
+                            className="text-sm leading-relaxed"
+                            style={{ color: 'var(--text-secondary)' }}
+                          >
+                            {step.description}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </GlassCard>
+              </div>
+            </section>
+
+            {/* Section Divider */}
+            <div className="section-divider my-24"></div>
+
+            {/* Final CTA Section */}
+            <section
+              id="contact"
+              className="pt-15  lg:py-28"
             >
-              Tired of explaining the same thing over and over?
-            </h2>
-            <p
-              className="mb-10 text-lg leading-relaxed text-shadow-sm"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Let's set up your link so customers can browse everything without bothering you. Just send one link and watch them order on their own time.
-            </p>
-            <a
-              href="https://wa.me/2349040991849?text=Hi%20Muhammad%2C%20I%20checked%20your%20website%20portfolio%20and%20I%27d%20like%20to%20discuss%20a%20project."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press"
-              style={{
-                background: 'var(--glass-bg)',
-                borderColor: 'var(--glass-border)',
-                color: 'var(--text-primary)',
-                boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-              }}
-            >
-              Start a conversation
-            </a>
-          </div>
-        </section>
-      </main>
+              <div className="mx-auto max-w-3xl px-6 text-center">
+                <h2
+                  className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
+                  style={{
+                    color: 'var(--text-primary)',
+                    letterSpacing: '-0.01em',
+                    lineHeight: '1.2'
+                  }}
+                >
+                  Tired of explaining the same thing over and over?
+                </h2>
+                <p
+                  className="mb-10 text-lg leading-relaxed text-shadow-sm"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Let's set up your link so customers can browse everything without bothering you. Just send one link and watch them order on their own time.
+                </p>
+                <a
+                  href="https://wa.me/2349040991849?text=Hi%20Muhammad%2C%20I%20checked%20your%20website%20portfolio%20and%20I%27d%20like%20to%20discuss%20a%20project."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press"
+                  style={{
+                    background: 'var(--glass-bg)',
+                    borderColor: 'var(--glass-border)',
+                    color: 'var(--text-primary)',
+                    boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                  }}
+                >
+                  Start a conversation
+                </a>
+              </div>
+            </section>
+          </main>
 
-      <Footer />
+          <Footer />
 
-      {/* Solution Modal */}
-      <SolutionModal
-        isOpen={selectedSolution !== null}
-        onClose={() => setSelectedSolution(null)}
-        solution={selectedSolution}
-      />
-    </div>
+          {/* Solution Modal */}
+          <SolutionModal
+            isOpen={selectedSolution !== null}
+            onClose={() => setSelectedSolution(null)}
+            solution={selectedSolution}
+          />
+        </div>
+      </div>
+    </>
   );
 }

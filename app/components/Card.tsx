@@ -82,6 +82,11 @@ export function Card({ title, description, number, className = "", enableScrollS
                 background: 'var(--glass-bg)',
                 borderColor: 'var(--glass-border)',
                 boxShadow: '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                backfaceVisibility: 'hidden',
+                perspective: 1000,
+                transform: 'translateZ(0)',
             }}
         >
             {number && (
