@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { LucideIcon } from "lucide-react";
+import { gsap } from "gsap";
 
 interface CardProps {
     title: string;
@@ -15,49 +16,52 @@ interface CardProps {
 
 export function Card({ title, description, number, className = "", enableScrollScale = false, icon: Icon, imageLike = false }: CardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState(1);
-    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        // Detect if mobile
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+        if (!enableScrollScale || !cardRef.current) return;
 
-    useEffect(() => {
-        // Disable scroll scaling on mobile entirely
-        if (!enableScrollScale || !cardRef.current || isMobile) return;
-
-        let rafId: number | null = null;
-        let lastTime = 0;
+        const card = cardRef.current;
+        let ticking = false;
 
         const handleScroll = () => {
-            const now = performance.now();
-            if (now - lastTime < 16) return; // Throttle to 60fps max
-            lastTime = now;
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    if (!card) return;
 
-            if (rafId) cancelAnimationFrame(rafId);
+                    const rect = card.getBoundingClientRect();
+                    const containerCenter = window.innerWidth / 2;
+                    const cardCenter = rect.left + rect.width / 2;
+                    const distance = Math.abs(containerCenter - cardCenter);
+                    const maxDistance = window.innerWidth / 2;
 
-            rafId = requestAnimationFrame(() => {
-                if (!cardRef.current) return;
+                    // Scale from 0.88 to 1.15 based on distance from center
+                    const normalizedDistance = Math.min(distance / maxDistance, 1);
+                    const targetScale = 1.15 - (normalizedDistance * 0.27);
 
-                const rect = cardRef.current.getBoundingClientRect();
-                const containerCenter = window.innerWidth / 2;
-                const cardCenter = rect.left + rect.width / 2;
-                const distance = Math.abs(containerCenter - cardCenter);
-                const maxDistance = window.innerWidth / 2;
+                    // Use GSAP for smooth, optimized scaling with no React re-renders
+                    gsap.to(card, {
+                        scale: targetScale,
+                        duration: 0.3,
+                        ease: "power2.out",
+                        overwrite: true,
+                    });
 
-                // Scale from 0.85 to 1.1 based on distance from center
-                const newScale = Math.max(0.85, Math.min(1.1, 1.1 - (distance / maxDistance) * 0.25));
-                setScale(newScale);
-            });
+                    ticking = false;
+                });
+                ticking = true;
+            }
         };
 
-        const scrollContainer = cardRef.current.parentElement;
+        // Find the scrollable container
+        let scrollContainer = card.parentElement;
+        while (scrollContainer) {
+            const overflow = window.getComputedStyle(scrollContainer).overflowX;
+            if (overflow === 'auto' || overflow === 'scroll') {
+                break;
+            }
+            scrollContainer = scrollContainer.parentElement;
+        }
+
         if (scrollContainer) {
             scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
             handleScroll(); // Initial call
@@ -67,9 +71,8 @@ export function Card({ title, description, number, className = "", enableScrollS
             if (scrollContainer) {
                 scrollContainer.removeEventListener('scroll', handleScroll);
             }
-            if (rafId) cancelAnimationFrame(rafId);
         };
-    }, [enableScrollScale, isMobile]);
+    }, [enableScrollScale]);
 
     return (
         <div
@@ -79,9 +82,6 @@ export function Card({ title, description, number, className = "", enableScrollS
                 background: 'var(--glass-bg)',
                 borderColor: 'var(--glass-border)',
                 boxShadow: '0 8px 32px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                transform: enableScrollScale && !isMobile ? `scale(${scale})` : 'scale(1)',
-                transition: 'transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.3s ease',
-                willChange: enableScrollScale && !isMobile ? 'transform' : 'auto',
             }}
         >
             {number && (

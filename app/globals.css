@@ -274,11 +274,6 @@ html {
 /* Mobile performance optimizations - ONLY for scrolling cards section */
 @media (max-width: 768px) {
 
-  /* Disable scaling effect on mobile - keep cards at fixed size for smooth scrolling */
-  .scroll-cards-container>* {
-    transform: scale(1) !important;
-  }
-
   /* Reduce backdrop blur significantly on mobile */
   .scroll-cards-container .backdrop-blur-xl {
     backdrop-filter: blur(8px);
