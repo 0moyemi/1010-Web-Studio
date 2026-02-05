@@ -47,7 +47,7 @@ export default function QuoteTemplate({ data }: QuoteTemplateProps) {
 
                         {/* Subtle Branding - Top Right */}
                         <div className="absolute top-3 right-3 z-10">
-                            <p className="text-[9px] text-white/60 font-mono tracking-wider backdrop-blur-sm py-1 rounded">
+                            <p className="text-[9px] text-white/100 font-mono tracking-wider backdrop-blur-sm py-1 rounded">
                                 www.1010web.studio
                             </p>
                         </div>

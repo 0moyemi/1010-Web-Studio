@@ -72,7 +72,7 @@ export default function CarouselTemplate({ data }: CarouselTemplateProps) {
 
                 {/* Domain - Bottom Center */}
                 <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center">
-                    <span className="text-[10px] text-[var(--text-muted)] font-mono opacity-70">
+                    <span className="text-[10px] text-[var(--text-muted)] font-mono opacity-90">
                         www.1010web.studio
                     </span>
                 </div>
