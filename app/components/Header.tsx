@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function Header() {
     const scrollToContact = () => {
-        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById("get-started")?.scrollIntoView({ behavior: "smooth" });
     };
 
     return (
@@ -20,7 +20,7 @@ export function Header() {
                 <div className="flex items-center">
                     <Image
                         src="/1010 Primary Logo.svg"
-                        alt="1010 Web Studio"
+                        alt="1010 Web Studio - Sales systems and websites for small businesses in Nigeria"
                         width={50}
                         height={50}
                         priority

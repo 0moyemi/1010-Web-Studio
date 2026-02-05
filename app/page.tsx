@@ -43,7 +43,6 @@ export default function Home() {
     { text: `Your customers disappear after "I'll get back to you"`, icon: UserX },
     { text: "You don't have one clear place to send customers", icon: MapPinOff },
     { text: "You struggle to post and follow up consistently", icon: CalendarX },
-    { text: "You depend only on your contact list", icon: ListX },
   ];
 
   const services = [
@@ -67,11 +66,6 @@ export default function Home() {
       description: "More people discover your business on WhatsApp",
       icon: Megaphone,
     },
-    {
-      title: "Follow-up Support",
-      description: "We ensure everything runs smoothly after launch",
-      icon: Headset,
-    },
   ];
 
   const solutions: Solution[] = [
@@ -91,11 +85,11 @@ export default function Home() {
         "→ You stay in control, update your products when it's convenient, and go on with your day"
       ],
       images: [
-        { src: "/products-showcase-1.jpg", alt: "Product showcase example 1" },
-        { src: "/products-showcase-2.jpg", alt: "Product showcase example 2" },
-        { src: "/products-showcase-3.jpg", alt: "Product showcase example 3" },
-        { src: "/products-showcase-4.jpg", alt: "Product showcase example 4" },
-        { src: "/product-showcase-5.jpg", alt: "Product showcase example 5" }
+        { src: "/products-showcase-1.jpg", alt: "Online product catalog example for small business in Nigeria showing clean product display" },
+        { src: "/products-showcase-2.jpg", alt: "Business website product catalog with easy navigation for Nigerian small businesses" },
+        { src: "/products-showcase-3.jpg", alt: "Simple sales system product showcase with prices and descriptions for online selling" },
+        { src: "/products-showcase-4.jpg", alt: "Mobile-friendly product catalog website for small business online store" },
+        { src: "/product-showcase-5.jpg", alt: "WhatsApp-integrated product catalog for Nigerian small businesses selling online" }
       ]
     },
     {
@@ -114,8 +108,8 @@ export default function Home() {
         "→ Consistency becomes automatic, not a burden"
       ],
       images: [
-        { src: "/status-consistency.jpg", alt: "Status consistency system" },
-        { src: "/follow-up-tracker.jpg", alt: "Follow-up tracker for customers who say I'll get back to you" }
+        { src: "/status-consistency.jpg", alt: "WhatsApp status templates for consistent online selling and business visibility in Nigeria" },
+        { src: "/follow-up-tracker.jpg", alt: "Customer follow-up tracking system for small businesses managing sales leads and orders" }
       ]
     },
     {
@@ -134,7 +128,7 @@ export default function Home() {
         "→ You sound professional, not desperate"
       ],
       images: [
-        { src: "/messaging-template.jpg", alt: "Follow-up message templates" }
+        { src: "/messaging-template.jpg", alt: "Professional WhatsApp message templates for small business customer follow-up and sales communication" }
       ]
     }
   ];
@@ -148,38 +142,24 @@ export default function Home() {
   const processSteps = [
     {
       number: "01",
-      title: "Understand your business",
+      title: "We learn your business",
       description:
-        "We learn about your products, customers, and what makes your business unique",
+        "Tell us about your products, your customers, and what makes you different. We take time to understand what you really need",
       icon: Ear,
     },
     {
       number: "02",
-      title: "Organize everything clearly",
+      title: "We build your system",
       description:
-        "We structure your products in a way that's easy to browse and understand",
-      icon: Layers,
-    },
-    {
-      number: "03",
-      title: "Set up your showcase",
-      description:
-        "We build your product display with clean design and smooth functionality",
+        "We organize everything and create a clean, simple showcase where your customers can easily browse and order",
       icon: LayoutGrid,
     },
     {
-      number: "04",
-      title: "Test and make it smooth",
+      number: "03",
+      title: "We launch and support",
       description:
-        "We ensure everything works perfectly before you start sharing",
-      icon: TestTube,
-    },
-    {
-      number: "05",
-      title: "Support after launch",
-      description:
-        "We're here to help with updates, questions, and keeping things running",
-      icon: Headset,
+        "We make sure everything works smoothly, then stay with you for any updates or questions you have",
+      icon: Rocket,
     },
   ];
 
@@ -192,7 +172,7 @@ export default function Home() {
 
           <main>
             {/* Hero Section */}
-            <section className="mx-auto max-w-4xl px-6 py-15 text-center lg:py-32 fade-in-up">
+            <section id="hero" className="mx-auto max-w-4xl px-6 py-15 text-center lg:py-32 fade-in-up" aria-label="Sales systems and product catalogs for small businesses in Nigeria">
               <h1
                 className="mx-auto mb-6 max-w-3xl text-3xl font-bold sm:text-5xl lg:text-6xl text-shadow-md"
                 style={{
@@ -204,6 +184,7 @@ export default function Home() {
                 <span style={{ whiteSpace: 'nowrap' }}>Display everything you sell,</span>
                 <br />
                 <span className="text-gradient-accent">in one link.</span>
+                <span className="sr-only"> - Sales systems and product catalogs for small businesses in Nigeria selling online</span>
               </h1>
               <p
                 className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed sm:text-xl text-shadow-sm"
@@ -212,7 +193,7 @@ export default function Home() {
                 Why stress yourself explaining your products to every new customer, when you can just send them one link?
               </p>
               <a
-                href="#view-work"
+                href="#our-work"
                 className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press float-animation glow-on-hover"
                 style={{
                   background: 'var(--glass-bg)',
@@ -229,7 +210,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* Pain Points Section */}
-            <section className="py-20 lg:py-28 scroll-fade-in">
+            <section id="pain-points" className="py-20 lg:py-28 scroll-fade-in" aria-label="Common challenges for Nigerian small businesses selling online with WhatsApp">
               <div className="mx-auto max-w-3xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -240,6 +221,7 @@ export default function Home() {
                   }}
                 >
                   Sound familiar?
+                  <span className="sr-only"> - Challenges Nigerian small businesses face selling online</span>
                 </h2>
                 <p
                   className="mb-12 text-lg text-shadow-sm"
@@ -261,7 +243,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* What You Get Section */}
-            <section id="deliver" className="py-20 lg:py-28 scroll-fade-in">
+            <section id="what-we-build" className="py-20 lg:py-28 scroll-fade-in" aria-label="Sales systems, product catalogs, and websites we build for Nigerian small businesses">
               <div className="mx-auto max-w-7xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -272,6 +254,7 @@ export default function Home() {
                   }}
                 >
                   What you get
+                  <span className="sr-only"> - Complete sales systems and product catalogs for online selling</span>
                 </h2>
                 <p
                   className="mb-12 max-w-2xl text-lg text-shadow-sm"
@@ -301,7 +284,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* Solutions Showcase Section */}
-            <section id="view-work" className="py-20 lg:py-28 scroll-fade-in">
+            <section id="our-work" className="py-20 lg:py-28 scroll-fade-in" aria-label="Sales systems and website solutions for Nigerian small businesses selling online">
               <div className="mx-auto max-w-6xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm text-center"
@@ -312,6 +295,7 @@ export default function Home() {
                   }}
                 >
                   View Our Work
+                  <span className="sr-only"> - Product catalogs and sales systems for small businesses in Nigeria</span>
                 </h2>
                 <p
                   className="mb-4 text-lg text-shadow-sm text-center"
@@ -391,7 +375,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* Process Section */}
-            <section className="py-20 lg:py-28 scroll-fade-in">
+            <section id="how-we-work" className="py-20 lg:py-28 scroll-fade-in" aria-label="Our process for building sales systems and websites for Nigerian small businesses">
               <div className="mx-auto max-w-4xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -402,6 +386,7 @@ export default function Home() {
                   }}
                 >
                   How we work
+                  <span className="sr-only"> - Building product catalogs and sales systems for Nigerian businesses</span>
                 </h2>
                 <p
                   className="mb-12 text-lg text-shadow-sm"
@@ -455,8 +440,9 @@ export default function Home() {
 
             {/* Final CTA Section */}
             <section
-              id="contact"
+              id="get-started"
               className="pt-15  lg:py-28"
+              aria-label="Get started with sales systems and product catalogs for your small business in Nigeria"
             >
               <div className="mx-auto max-w-3xl px-6 text-center">
                 <h2
@@ -467,16 +453,17 @@ export default function Home() {
                     lineHeight: '1.2'
                   }}
                 >
-                  Tired of explaining the same thing over and over?
+                  Selling online shouldn't feel this stressful
+                  <span className="sr-only"> - Start selling online with product catalogs and sales systems</span>
                 </h2>
                 <p
                   className="mb-10 text-lg leading-relaxed text-shadow-sm"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  Let's set up your link so customers can browse everything without bothering you. Just send one link and watch them order on their own time.
+                  Give your customers one place to see everything you sell. No more wasted time and efforts. Send one link, and watch them order when they're ready.
                 </p>
                 <a
-                  href="https://wa.me/2349040991849?text=Hi%20Muhammad%2C%20I%20checked%20your%20website%20portfolio%20and%20I%27d%20like%20to%20discuss%20a%20project."
+                  href="https://wa.me/2349040991849?text=Hello%201010%20Web%20Studio%2C%20I%20checked%20your%20website%20and%20I%27d%20like%20to%20discuss%20a%20project."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press"
@@ -487,7 +474,7 @@ export default function Home() {
                     boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                   }}
                 >
-                  Start a conversation
+                  Get started now
                 </a>
               </div>
             </section>
