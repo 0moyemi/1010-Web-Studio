@@ -20,13 +20,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Sales Systems for Small Businesses in Nigeria | 1010 Web Studio",
     description: "We help Nigerian small businesses sell online without stress. Simple product catalogs and sales systems that work.",
-    url: "https://1010web.studio",
+    url: "https://www.1010web.studio",
     siteName: "1010 Web Studio",
     locale: "en_NG",
     type: "website",
     images: [
       {
-        url: "https://1010web.studio/Primary Logo.svg",
+        url: "https://www.1010web.studio/Primary Logo.svg",
         width: 1200,
         height: 630,
         alt: "1010 Web Studio - Sales Systems for Nigerian Small Businesses",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Sales Systems for Small Businesses in Nigeria | 1010 Web Studio",
     description: "We help Nigerian small businesses sell online without stress. Simple product catalogs and sales systems that work.",
-    images: ["https://1010web.studio/Primary Logo.svg"],
+    images: ["https://www.1010web.studio/Primary Logo.svg"],
   },
   icons: {
     icon: '/Primary Logo.svg',
@@ -72,8 +72,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "1010 Web Studio",
-              "url": "https://1010web.studio",
-              "logo": "https://1010web.studio/1010%20Primary%20Logo.svg",
+              "url": "https://www.1010web.studio",
+              "logo": "https://www.1010web.studio/1010%20Primary%20Logo.svg",
               "description": "Sales systems and websites for small businesses in Nigeria. We help businesses sell online without stress using clean product catalogs and automated sales systems.",
               "areaServed": {
                 "@type": "Country",
