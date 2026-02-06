@@ -35,7 +35,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 // Turn off view all slides mode
                 if (wasViewingAll) {
                     setCarouselData({ ...carouselData, viewAllSlides: false });
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    await new Promise(resolve => setTimeout(resolve, 300));
                 }
 
                 // Export each slide
@@ -44,7 +44,20 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     setCarouselData({ ...carouselData, currentSlide: i, viewAllSlides: false });
 
                     // Wait for render
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // Wait for images to load
+                    const images = canvasElement.querySelectorAll('img');
+                    await Promise.all(
+                        Array.from(images).map(img => {
+                            if (img.complete) return Promise.resolve();
+                            return new Promise<void>((resolve) => {
+                                img.onload = () => resolve();
+                                img.onerror = () => resolve();
+                                setTimeout(() => resolve(), 3000);
+                            });
+                        })
+                    );
 
                     // Export at full resolution (1080x1350)
                     const dataUrl = await toPng(canvasElement, {
@@ -52,6 +65,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                         pixelRatio: 2.5,
                         cacheBust: true,
                         backgroundColor: "#040d1f",
+                        skipFonts: false,
                     });
 
                     // Create download link
@@ -60,8 +74,8 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     link.href = dataUrl;
                     link.click();
 
-                    // Small delay between downloads
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                    // Delay between downloads
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 }
 
                 // Restore original state

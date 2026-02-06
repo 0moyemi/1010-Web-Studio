@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import TemplateCanvas from "./components/TemplateCanvas";
@@ -65,6 +65,32 @@ export default function TemplateGenerator() {
         tipDescriptionFontSize: 28,
         ctaFontSize: 30,
     });
+
+    // Load saved data from localStorage on mount
+    useEffect(() => {
+        try {
+            const savedTemplateType = localStorage.getItem('templateType');
+            const savedQuoteData = localStorage.getItem('quoteData');
+            const savedCarouselData = localStorage.getItem('carouselData');
+
+            if (savedTemplateType) setTemplateType(savedTemplateType as TemplateType);
+            if (savedQuoteData) setQuoteData(JSON.parse(savedQuoteData));
+            if (savedCarouselData) setCarouselData(JSON.parse(savedCarouselData));
+        } catch (error) {
+            console.error('Error loading saved data:', error);
+        }
+    }, []);
+
+    // Save data to localStorage whenever it changes
+    useEffect(() => {
+        try {
+            localStorage.setItem('templateType', templateType);
+            localStorage.setItem('quoteData', JSON.stringify(quoteData));
+            localStorage.setItem('carouselData', JSON.stringify(carouselData));
+        } catch (error) {
+            console.error('Error saving data:', error);
+        }
+    }, [templateType, quoteData, carouselData]);
 
     return (
         <div className="min-h-screen flex flex-col">
