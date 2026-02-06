@@ -72,11 +72,33 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 });
             } else {
                 // Single export for quote template
+                // Wait for all images to be fully loaded
+                const images = canvasElement.querySelectorAll('img');
+                await Promise.all(
+                    Array.from(images).map(img => {
+                        if (img.complete) return Promise.resolve();
+                        return new Promise<void>((resolve, reject) => {
+                            img.onload = () => resolve();
+                            img.onerror = reject;
+                            // Timeout after 5 seconds
+                            setTimeout(() => resolve(), 5000);
+                        });
+                    })
+                );
+
+                // Extra wait for rendering
+                await new Promise(resolve => setTimeout(resolve, 500));
+
                 const dataUrl = await toPng(canvasElement, {
                     quality: 1.0,
                     pixelRatio: 2.5,
                     cacheBust: true,
                     backgroundColor: "#040d1f",
+                    skipFonts: false,
+                    filter: (node) => {
+                        // Ensure we capture everything
+                        return true;
+                    }
                 });
 
                 const link = document.createElement("a");

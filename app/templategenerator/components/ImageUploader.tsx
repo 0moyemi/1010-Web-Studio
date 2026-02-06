@@ -16,31 +16,60 @@ export default function ImageUploader({
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleFileSelect = (file: File) => {
+    const handleFileSelect = async (file: File) => {
         if (file && file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setQuoteData({
-                    ...quoteData,
-                    image: e.target?.result as string,
-                    imagePosition: { x: 50, y: 50 },
-                    imageScale: 1,
+            try {
+                // Create an image bitmap with proper orientation handling
+                const imageBitmap = await createImageBitmap(file, {
+                    imageOrientation: 'from-image'
                 });
-            };
-            reader.readAsDataURL(file);
+
+                // Draw to canvas to get properly oriented base64 
+                const canvas = document.createElement('canvas');
+                canvas.width = imageBitmap.width;
+                canvas.height = imageBitmap.height;
+                const ctx = canvas.getContext('2d');
+
+                if (ctx) {
+                    ctx.drawImage(imageBitmap, 0, 0);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+
+                    setQuoteData({
+                        ...quoteData,
+                        image: dataUrl,
+                        imagePosition: { x: 50, y: 50 },
+                        imageScale: 1,
+                    });
+                }
+
+                imageBitmap.close();
+            } catch (error) {
+                console.error('Error processing image:', error);
+                // Fallback to FileReader if createImageBitmap fails
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setQuoteData({
+                        ...quoteData,
+                        image: e.target?.result as string,
+                        imagePosition: { x: 50, y: 50 },
+                        imageScale: 1,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
         }
     };
 
-    const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleFileInput = async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) handleFileSelect(file);
+        if (file) await handleFileSelect(file);
     };
 
-    const handleDrop = (e: React.DragEvent) => {
+    const handleDrop = async (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
-        if (file) handleFileSelect(file);
+        if (file) await handleFileSelect(file);
     };
 
     const handleDragOver = (e: React.DragEvent) => {
