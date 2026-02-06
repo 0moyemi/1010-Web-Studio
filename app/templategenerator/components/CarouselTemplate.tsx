@@ -99,7 +99,7 @@ function HookSlide({ hook, fontSize }: { hook: string; fontSize: number }) {
             {/* Hook content - occupies roughly 1/3 */}
             <div className="flex-shrink-0">
                 <h2
-                    className="font-bold text-gradient-accent leading-tight mb-6 uppercase"
+                    className="font-bold text-white leading-tight mb-6"
                     style={{
                         fontSize: `${fontSize}px`,
                         whiteSpace: 'pre-line',
