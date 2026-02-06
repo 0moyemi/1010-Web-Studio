@@ -136,41 +136,27 @@ function TipSlide({
     descriptionFontSize: number;
 }) {
     return (
-        <div className="flex-1 flex flex-col justify-center gap-8">
-            {/* Number + Title - grouped together */}
-            <div className="flex flex-col gap-3">
-                {/* Number Badge */}
-                <div
-                    className="inline-flex items-center justify-center w-14 h-14 rounded-2xl self-start"
-                    style={{
-                        background:
-                            "linear-gradient(135deg, var(--highlight) 0%, rgba(59, 89, 152, 0.7) 100%)",
-                        boxShadow: "0 4px 12px rgba(59, 89, 152, 0.3)",
-                    }}
-                >
-                    <span className="text-2xl font-bold text-white">{number}</span>
-                </div>
-
-                {/* Title */}
-                <h3
-                    className="font-bold text-[var(--text-primary)] leading-tight"
-                    style={{
-                        fontSize: `${titleFontSize}px`,
-                        whiteSpace: 'pre-line',
-                        textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)"
-                    }}
-                >
-                    {tip.title}
-                </h3>
+        <div className="flex-1 flex flex-col justify-center gap-6">
+            {/* Number Badge */}
+            <div
+                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl self-start"
+                style={{
+                    background:
+                        "linear-gradient(135deg, var(--highlight) 0%, rgba(59, 89, 152, 0.7) 100%)",
+                    boxShadow: "0 4px 12px rgba(59, 89, 152, 0.3)",
+                }}
+            >
+                <span className="text-3xl font-bold text-white">{number}</span>
             </div>
 
-            {/* Description - separated with consistent spacing */}
+            {/* Description */}
             <div>
                 <p
-                    className="text-[var(--text-secondary)] leading-relaxed max-w-md"
+                    className="text-[var(--text-primary)] font-semibold leading-relaxed max-w-lg"
                     style={{
                         fontSize: `${descriptionFontSize}px`,
-                        whiteSpace: 'pre-line'
+                        whiteSpace: 'pre-line',
+                        textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)"
                     }}
                 >
                     {tip.description}

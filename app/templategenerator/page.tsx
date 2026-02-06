@@ -62,7 +62,7 @@ export default function TemplateGenerator() {
         viewAllSlides: false,
         hookFontSize: 30,
         tipTitleFontSize: 36,
-        tipDescriptionFontSize: 20,
+        tipDescriptionFontSize: 28,
         ctaFontSize: 30,
     });
 

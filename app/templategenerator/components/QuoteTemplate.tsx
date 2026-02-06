@@ -14,13 +14,15 @@ export default function QuoteTemplate({ data }: QuoteTemplateProps) {
                 {data.image ? (
                     <>
                         {/* Uploaded Image */}
-                        <div
-                            className="absolute inset-0 bg-cover bg-center"
+                        <img
+                            src={data.image}
+                            alt="Quote background"
+                            className="absolute inset-0 w-full h-full object-cover"
                             style={{
-                                backgroundImage: `url(${data.image})`,
-                                backgroundPosition: `${data.imagePosition.x}% ${data.imagePosition.y}%`,
+                                objectPosition: `${data.imagePosition.x}% ${data.imagePosition.y}%`,
                                 transform: `scale(${data.imageScale})`,
                             }}
+                            crossOrigin="anonymous"
                         />
 
                         {/* Fade Gradient Overlay */}

@@ -273,7 +273,7 @@ function CarouselControls({
                 <div className="grid grid-cols-2 gap-4 p-4 bg-[var(--card-background)] border border-[var(--border-color)] rounded-lg">
                     <div>
                         <label className="block text-xs text-[var(--text-muted)] mb-1">
-                            Title Size
+                            Label Size (hidden)
                         </label>
                         <input
                             type="range"
@@ -287,6 +287,7 @@ function CarouselControls({
                                 })
                             }
                             className="w-full"
+                            disabled
                         />
                         <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-1">
                             <span>Small</span>
@@ -295,12 +296,12 @@ function CarouselControls({
                     </div>
                     <div>
                         <label className="block text-xs text-[var(--text-muted)] mb-1">
-                            Description Size
+                            Text Size
                         </label>
                         <input
                             type="range"
-                            min="14"
-                            max="36"
+                            min="18"
+                            max="48"
                             value={carouselData.tipDescriptionFontSize}
                             onChange={(e) =>
                                 setCarouselData({
@@ -340,7 +341,7 @@ function CarouselControls({
                             type="text"
                             value={tip.title}
                             onChange={(e) => updateTip(index, "title", e.target.value)}
-                            placeholder="Press Enter for line breaks"
+                            placeholder="Internal label (not shown on slide)"
                             className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border-color)] 
                        rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm
                        focus:outline-none focus:ring-1 focus:ring-[var(--highlight)]"
@@ -349,8 +350,8 @@ function CarouselControls({
                         <textarea
                             value={tip.description}
                             onChange={(e) => updateTip(index, "description", e.target.value)}
-                            placeholder="Press Enter for line breaks"
-                            rows={2}
+                            placeholder="Main text displayed on slide (Press Enter for line breaks)"
+                            rows={3}
                             className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border-color)] 
                        rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm
                        focus:outline-none focus:ring-1 focus:ring-[var(--highlight)] resize-none"
