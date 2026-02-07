@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
     try {
@@ -76,13 +77,36 @@ export async function POST(request: NextRequest) {
         if (step === 'payment') {
             updateData.paymentMethod = paymentMethod;
             updateData.paymentReceiptUrl = paymentReceiptUrl;
-            updateData.paymentStatus = paymentMethod === 'manual' ? 'pending' : 'confirmed';
-            updateData.status = paymentMethod === 'manual' ? 'payment_pending' : 'paid';
-            updateData.submittedAt = new Date();
 
-            if (paymentMethod === 'paystack') {
+            // Handle testing package (free)
+            if (paymentMethod === 'testing') {
+                updateData.paymentStatus = 'confirmed';
+                updateData.status = 'paid';
+                updateData.submittedAt = new Date();
                 updateData.paidAt = new Date();
-                updateData.amountPaid = contract.packagePrice / 2;
+                updateData.amountPaid = 0;
+            } else if (paymentMethod === 'manual') {
+                updateData.paymentStatus = 'pending';
+                updateData.status = 'payment_pending';
+                updateData.submittedAt = new Date();
+            } else {
+                updateData.paymentStatus = paymentMethod === 'manual' ? 'pending' : 'confirmed';
+                updateData.status = paymentMethod === 'manual' ? 'payment_pending' : 'paid';
+                updateData.submittedAt = new Date();
+
+                if (paymentMethod === 'paystack') {
+                    updateData.paidAt = new Date();
+                    updateData.amountPaid = contract.packagePrice / 2;
+                }
+            }
+
+            // Send welcome email for all completed payments (including testing)
+            if (contract.email && (paymentMethod === 'testing' || paymentMethod === 'paystack')) {
+                await sendWelcomeEmail({
+                    to: contract.email,
+                    businessName: contract.businessName || 'Valued Client',
+                    contractToken: token,
+                });
             }
         }
 

@@ -6,6 +6,7 @@ import { Header } from "@/app/components/Header";
 import { Footer } from "@/app/components/Footer";
 import { GlassCard } from "@/app/components/GlassCard";
 import { Check, Loader2, Upload, AlertCircle } from "lucide-react";
+import { loadFlutterwaveScript, initializeFlutterwavePayment } from "@/lib/flutterwave";
 
 export default function ContractPage() {
     const params = useParams();
@@ -35,11 +36,14 @@ export default function ContractPage() {
     const [provideLater, setProvideLater] = useState(false);
 
     // Step 4: Payment
-    const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'manual'>('manual');
-    const [receiptFile, setReceiptFile] = useState<File | null>(null);
+    const [flutterwaveLoaded, setFlutterwaveLoaded] = useState(false);
 
     useEffect(() => {
         fetchContract();
+        // Load Flutterwave script
+        loadFlutterwaveScript()
+            .then(() => setFlutterwaveLoaded(true))
+            .catch((error) => console.error('Failed to load Flutterwave:', error));
     }, [token]);
 
     const fetchContract = async () => {
@@ -131,13 +135,35 @@ export default function ContractPage() {
             }
 
             if (currentStep === 4) {
-                stepData.step = 'payment';
-                stepData.paymentMethod = paymentMethod;
+                // Skip payment for testing package (free)
+                if (contract.packagePrice === 0) {
+                    stepData.step = 'payment';
+                    stepData.paymentMethod = 'testing';
+                    stepData.paymentStatus = 'confirmed';
+                    stepData.status = 'paid';
 
-                if (paymentMethod === 'manual' && receiptFile) {
-                    const receiptUrl = await uploadToCloudinary(receiptFile);
-                    stepData.paymentReceiptUrl = receiptUrl;
+                    const response = await fetch('/api/contract/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(stepData),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const emailParam = email ? `?email=${encodeURIComponent(email)}` : '';
+                        router.push(`/contract/${token}/success${emailParam}`);
+                    } else {
+                        alert(data.error || 'Something went wrong');
+                    }
+                    setSubmitting(false);
+                    return;
                 }
+
+                // Handle Flutterwave payment
+                setSubmitting(false);
+                handleFlutterwavePayment();
+                return;
             }
 
             const response = await fetch('/api/contract/submit', {
@@ -152,8 +178,9 @@ export default function ContractPage() {
                 if (currentStep < 4) {
                     setCurrentStep(currentStep + 1);
                 } else {
-                    // Contract complete
-                    router.push(`/contract/${token}/success`);
+                    // Contract complete - redirect with email parameter
+                    const emailParam = email ? `?email=${encodeURIComponent(email)}` : '';
+                    router.push(`/contract/${token}/success${emailParam}`);
                 }
             } else {
                 alert(data.error || 'Something went wrong');
@@ -164,6 +191,45 @@ export default function ContractPage() {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const handleFlutterwavePayment = () => {
+        if (!flutterwaveLoaded) {
+            alert('Payment system is loading. Please try again in a moment.');
+            return;
+        }
+
+        if (!contract) {
+            alert('Contract data not loaded');
+            return;
+        }
+
+        const amount = contract.packagePrice / 2; // 50% deposit
+
+        initializeFlutterwavePayment({
+            amount: amount,
+            customerEmail: email || 'customer@example.com',
+            customerName: ownerName || businessName || 'Customer',
+            customerPhone: whatsappNumber || '',
+            contractToken: token,
+            packageName: contract.package || 'Package',
+            businessName: businessName || '',
+            onSuccess: async (response) => {
+                console.log('Payment successful:', response);
+                setSubmitting(true);
+
+                // Redirect to verification endpoint
+                window.location.href = `/api/payment/verify?transaction_id=${response.transaction_id}&tx_ref=${response.tx_ref}&token=${token}&status=successful`;
+            },
+            onCancel: () => {
+                console.log('Payment cancelled');
+                alert('Payment was cancelled. You can try again when ready.');
+            },
+            onError: (error) => {
+                console.error('Payment error:', error);
+                alert('Payment failed. Please try again or use manual bank transfer.');
+            },
+        });
     };
 
     if (loading) {
@@ -629,115 +695,173 @@ export default function ContractPage() {
                             {/* STEP 4: Payment */}
                             {currentStep === 4 && (
                                 <div>
-                                    <h2 className="mb-4 text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                                        Payment (50% Deposit)
-                                    </h2>
-                                    <p className="mb-6 text-lg font-semibold" style={{ color: 'var(--highlight)' }}>
-                                        Amount Due: ₦{(contract.packagePrice / 2).toLocaleString()}
-                                    </p>
-
-                                    <div className="space-y-6">
-                                        {/* Payment Method */}
+                                    {contract.packagePrice === 0 ? (
+                                        // Free Testing Package
                                         <div>
-                                            <label className="mb-3 block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                                                Payment Method
-                                            </label>
-                                            <div className="space-y-3">
-                                                <label className="flex items-center gap-3 p-4 rounded-lg border cursor-pointer hover:bg-white/5" style={{ borderColor: paymentMethod === 'manual' ? 'var(--highlight)' : 'var(--glass-border)' }}>
-                                                    <input
-                                                        type="radio"
-                                                        name="payment"
-                                                        value="manual"
-                                                        checked={paymentMethod === 'manual'}
-                                                        onChange={() => setPaymentMethod('manual')}
-                                                        className="h-5 w-5"
-                                                    />
-                                                    <div>
-                                                        <div className="font-medium" style={{ color: 'var(--text-primary)' }}>Bank Transfer</div>
-                                                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Upload receipt after payment</div>
-                                                    </div>
-                                                </label>
+                                            <div className="text-center mb-6">
+                                                <h2 className="mb-2 text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                                                    Testing Package
+                                                </h2>
+                                                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                                    No payment required
+                                                </p>
+                                            </div>
+
+                                            {/* Free Badge */}
+                                            <div className="mb-6 rounded-2xl border p-6 text-center" style={{ borderColor: '#22c55e', background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05))' }}>
+                                                <div className="mx-auto mb-4 h-16 w-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(34, 197, 94, 0.2)' }}>
+                                                    <Check size={32} style={{ color: '#22c55e' }} />
+                                                </div>
+                                                <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                                    This is a free testing package
+                                                </p>
+                                                <p className="text-4xl font-bold mb-1" style={{ color: '#22c55e' }}>
+                                                    ₦0
+                                                </p>
+                                                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                                    No payment required • Instant activation
+                                                </p>
+                                            </div>
+
+                                            <div className="mt-8 flex gap-3">
+                                                <button
+                                                    onClick={() => setCurrentStep(3)}
+                                                    className="flex-1 rounded-full px-8 py-3.5 text-base font-medium border backdrop-blur-xl transition-all hover:scale-[1.02]"
+                                                    style={{
+                                                        borderColor: 'var(--glass-border)',
+                                                        color: 'var(--text-primary)',
+                                                    }}
+                                                >
+                                                    Back
+                                                </button>
+                                                <button
+                                                    onClick={handleNext}
+                                                    disabled={submitting}
+                                                    className="flex-1 rounded-full px-8 py-3.5 text-base font-medium backdrop-blur-xl border disabled:opacity-50 transition-all hover:scale-[1.02] hover:shadow-xl"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, #22c55e, rgba(34, 197, 94, 0.8))',
+                                                        borderColor: '#22c55e',
+                                                        color: '#fff',
+                                                        boxShadow: '0 8px 32px rgba(34, 197, 94, 0.4)',
+                                                    }}
+                                                >
+                                                    {submitting ? (
+                                                        <span className="flex items-center justify-center gap-2">
+                                                            <Loader2 size={20} className="animate-spin" />
+                                                            Completing...
+                                                        </span>
+                                                    ) : (
+                                                        'Complete (Free)'
+                                                    )}
+                                                </button>
                                             </div>
                                         </div>
-
-                                        {/* Bank Details */}
-                                        {paymentMethod === 'manual' && (
-                                            <div className="rounded-lg border p-6" style={{ borderColor: 'var(--highlight)', background: 'rgba(79, 70, 229, 0.1)' }}>
-                                                <h3 className="mb-3 text-base font-semibold" style={{ color: 'var(--highlight)' }}>
-                                                    Bank Account Details
-                                                </h3>
-                                                <div className="space-y-2 text-sm" style={{ color: 'var(--text-primary)' }}>
-                                                    <p><strong>Bank:</strong> Your Bank Name</p>
-                                                    <p><strong>Account Number:</strong> 1234567890</p>
-                                                    <p><strong>Account Name:</strong> Your Business Name</p>
-                                                    <p><strong>Amount:</strong> ₦{(contract.packagePrice / 2).toLocaleString()}</p>
-                                                </div>
+                                    ) : (
+                                        // Paid Package - Show Payment
+                                        <div>
+                                            <div className="text-center mb-6">
+                                                <h2 className="mb-2 text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                                                    Secure Payment
+                                                </h2>
+                                                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                                    Your payment is secured by Flutterwave
+                                                </p>
                                             </div>
-                                        )}
 
-                                        {/* Receipt Upload */}
-                                        {paymentMethod === 'manual' && (
-                                            <div>
-                                                <label className="mb-2 block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                                                    Upload Payment Receipt <span style={{ color: 'var(--highlight)' }}>*</span>
-                                                </label>
-                                                <div
-                                                    className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 cursor-pointer hover:border-[var(--highlight)] transition-colors"
-                                                    style={{ borderColor: 'var(--glass-border)' }}
-                                                    onClick={() => document.getElementById('receipt-upload')?.click()}
-                                                >
-                                                    {receiptFile ? (
-                                                        <div className="text-center">
-                                                            <Check size={32} style={{ color: 'green' }} className="mx-auto" />
-                                                            <p className="mt-2 text-sm" style={{ color: 'var(--text-primary)' }}>
-                                                                {receiptFile.name}
+                                            {/* Amount Card */}
+                                            <div className="mb-6 rounded-2xl border p-6 text-center" style={{ borderColor: 'var(--highlight)', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(79, 70, 229, 0.05))' }}>
+                                                <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                                    50% Deposit Required
+                                                </p>
+                                                <p className="text-4xl font-bold mb-1" style={{ color: 'var(--highlight)' }}>
+                                                    ₦{(contract.packagePrice / 2).toLocaleString()}
+                                                </p>
+                                                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                                    Total Package: ₦{contract.packagePrice.toLocaleString()}
+                                                </p>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                {/* Payment Info Card */}
+                                                <div className="flex items-start gap-4 p-6 rounded-xl border" style={{ borderColor: 'var(--highlight)', background: 'rgba(79, 70, 229, 0.08)' }}>
+                                                    <div className="rounded-full p-3" style={{ background: 'rgba(79, 70, 229, 0.2)' }}>
+                                                        <svg className="h-6 w-6" style={{ color: 'var(--highlight)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                                                            Secure Payment with Flutterwave
+                                                        </h3>
+                                                        <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-secondary)' }}>
+                                                            Pay securely with your card, bank transfer, USSD, or bank account. All transactions are protected with 256-bit SSL encryption.
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <span className="px-3 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(79, 70, 229, 0.15)', color: 'var(--highlight)' }}>💳 Card</span>
+                                                            <span className="px-3 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(79, 70, 229, 0.15)', color: 'var(--highlight)' }}>🏦 Bank Transfer</span>
+                                                            <span className="px-3 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(79, 70, 229, 0.15)', color: 'var(--highlight)' }}>📱 USSD</span>
+                                                            <span className="px-3 py-1 text-xs font-medium rounded-full" style={{ background: 'rgba(79, 70, 229, 0.15)', color: 'var(--highlight)' }}>💰 Account</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Security Badge */}
+                                                <div className="rounded-xl border p-4" style={{ borderColor: 'var(--glass-border)', background: 'rgba(255, 255, 255, 0.02)' }}>
+                                                    <div className="flex items-start gap-3">
+                                                        <svg className="h-5 w-5 mt-0.5" style={{ color: '#22c55e' }} fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                        </svg>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                                                                Your payment is protected
+                                                            </p>
+                                                            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                                                                Flutterwave is PCI-DSS compliant and uses bank-level security. Your card details are encrypted and never stored on our servers.
                                                             </p>
                                                         </div>
-                                                    ) : (
-                                                        <>
-                                                            <Upload size={32} style={{ color: 'var(--text-secondary)' }} />
-                                                            <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                                                Click to upload receipt
-                                                            </p>
-                                                        </>
-                                                    )}
+                                                    </div>
                                                 </div>
-                                                <input
-                                                    id="receipt-upload"
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                                                    className="hidden"
-                                                />
                                             </div>
-                                        )}
-                                    </div>
 
-                                    <div className="mt-6 flex gap-3">
-                                        <button
-                                            onClick={() => setCurrentStep(3)}
-                                            className="flex-1 rounded-full px-8 py-3.5 text-base font-medium border backdrop-blur-xl"
-                                            style={{
-                                                borderColor: 'var(--glass-border)',
-                                                color: 'var(--text-primary)',
-                                            }}
-                                        >
-                                            Back
-                                        </button>
-                                        <button
-                                            onClick={handleNext}
-                                            disabled={submitting || (paymentMethod === 'manual' && !receiptFile)}
-                                            className="flex-1 rounded-full px-8 py-3.5 text-base font-medium backdrop-blur-xl border disabled:opacity-50"
-                                            style={{
-                                                background: 'var(--glass-bg)',
-                                                borderColor: 'var(--glass-border)',
-                                                color: 'var(--text-primary)',
-                                                boxShadow: '0 4px 24px var(--glass-shadow)',
-                                            }}
-                                        >
-                                            {submitting ? 'Submitting...' : 'Complete'}
-                                        </button>
-                                    </div>
+                                            <div className="mt-8 flex gap-3">
+                                                <button
+                                                    onClick={() => setCurrentStep(3)}
+                                                    className="flex-1 rounded-full px-8 py-3.5 text-base font-medium border backdrop-blur-xl transition-all hover:scale-[1.02]"
+                                                    style={{
+                                                        borderColor: 'var(--glass-border)',
+                                                        color: 'var(--text-primary)',
+                                                    }}
+                                                >
+                                                    Back
+                                                </button>
+                                                <button
+                                                    onClick={handleNext}
+                                                    disabled={submitting || !flutterwaveLoaded}
+                                                    className="flex-1 rounded-full px-8 py-3.5 text-base font-medium backdrop-blur-xl border disabled:opacity-50 transition-all hover:scale-[1.02] hover:shadow-xl"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, var(--highlight), rgba(79, 70, 229, 0.8))',
+                                                        borderColor: 'var(--glass-border)',
+                                                        color: '#fff',
+                                                        boxShadow: '0 8px 32px rgba(79, 70, 229, 0.4)',
+                                                    }}
+                                                >
+                                                    {submitting ? (
+                                                        <span className="flex items-center justify-center gap-2">
+                                                            <Loader2 size={20} className="animate-spin" />
+                                                            Opening Payment...
+                                                        </span>
+                                                    ) : !flutterwaveLoaded ? (
+                                                        <span className="flex items-center justify-center gap-2">
+                                                            <Loader2 size={20} className="animate-spin" />
+                                                            Loading...
+                                                        </span>
+                                                    ) : (
+                                                        'Proceed to Payment'
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </GlassCard>

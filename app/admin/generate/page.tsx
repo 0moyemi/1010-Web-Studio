@@ -7,14 +7,14 @@ import { GlassCard } from "@/app/components/GlassCard";
 import { Copy, Check, Loader2 } from "lucide-react";
 
 const PACKAGES = [
-    { value: 'pre-launch', label: 'Pre-launch Package', price: '₦290,000' },
-    { value: 'referred', label: 'Referred Package', price: '₦450,000' },
-    { value: 'original', label: 'Original Package', price: '₦390,000' },
+    { value: 'testing', label: 'Testing Package (FREE)', price: '₦0' },
+    { value: 'limited', label: 'Limited Package', price: '₦290,000' },
+    { value: 'minimum', label: 'Minimum Package', price: '₦390,000' },
 ];
 
 export default function GenerateContract() {
     const [clientName, setClientName] = useState("");
-    const [selectedPackage, setSelectedPackage] = useState("pre-launch");
+    const [selectedPackage, setSelectedPackage] = useState("testing");
     const [expiryDays, setExpiryDays] = useState(7);
     const [generatedLink, setGeneratedLink] = useState("");
     const [loading, setLoading] = useState(false);

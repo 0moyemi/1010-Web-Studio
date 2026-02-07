@@ -5,7 +5,7 @@ export interface Contract {
     status: 'pending' | 'info_submitted' | 'payment_pending' | 'paid' | 'expired';
 
     // Package details
-    package: 'pre-launch' | 'referred' | 'original';
+    package: 'limited' | 'minimum' | 'testing';
     packageName: string;
     packagePrice: number;
 
@@ -22,7 +22,7 @@ export interface Contract {
     provideLater?: boolean;
 
     // Payment
-    paymentMethod?: 'paystack' | 'manual';
+    paymentMethod?: 'paystack' | 'manual' | 'testing';
     paymentReceiptUrl?: string;
     paymentStatus?: 'pending' | 'confirmed';
     amountPaid?: number;
@@ -39,18 +39,18 @@ export interface Contract {
 }
 
 export const PACKAGES = {
-    'pre-launch': {
-        name: 'Pre-launch Package',
+    'testing': {
+        name: 'Testing Package (₦0)',
+        price: 0,
+        deposit: 0
+    },
+    'limited': {
+        name: 'Limited Package',
         price: 290000,
         deposit: 145000
     },
-    'referred': {
-        name: 'Referred Package',
-        price: 450000,
-        deposit: 225000
-    },
-    'original': {
-        name: 'Original Package',
+    'minimum': {
+        name: 'Minimum Package',
         price: 390000,
         deposit: 195000
     }

@@ -167,10 +167,15 @@ export async function GET(
 
         yPosition += 5;
         pdf.line(pageWidth - margin - 70, yPosition - 20, pageWidth - margin, yPosition - 20);
+        pdf.setFontSize(11);
+        pdf.setTextColor(59, 89, 152);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Muhammad Omoyemi', pageWidth - margin - 65, yPosition - 15);
         pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(100, 100, 100);
-        pdf.text('1010 Web Studio', pageWidth - margin - 60, yPosition - 15);
-        pdf.text('Service Provider', pageWidth - margin - 60, yPosition - 10);
+        pdf.text('1010 Web Studio', pageWidth - margin - 60, yPosition - 10);
+        pdf.text('Managing Director', pageWidth - margin - 60, yPosition - 5);
 
         // Footer on all pages
         const pageCount = pdf.getNumberOfPages();
@@ -179,7 +184,7 @@ export async function GET(
             pdf.setFontSize(8);
             pdf.setTextColor(150, 150, 150);
             pdf.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pdf.internal.pageSize.getHeight() - 10, { align: 'center' });
-            pdf.text('1010 Web Studio | contact@1010webstudio.com', pageWidth / 2, pdf.internal.pageSize.getHeight() - 5, { align: 'center' });
+            pdf.text('1010 Web Studio | www.1010web.studio | director@1010web.studio', pageWidth / 2, pdf.internal.pageSize.getHeight() - 5, { align: 'center' });
         }
 
         // Generate PDF as buffer
