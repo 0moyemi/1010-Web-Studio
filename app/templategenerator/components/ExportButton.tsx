@@ -49,8 +49,8 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     // Set current slide
                     setCarouselData({ ...carouselData, currentSlide: i, viewAllSlides: false });
 
-                    // Wait for render
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    // Wait for render - increased time
+                    await new Promise(resolve => setTimeout(resolve, 800));
 
                     // Wait for images to load
                     const images = canvasElement.querySelectorAll('img');
@@ -65,6 +65,9 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                         })
                     );
 
+                    // Additional wait for full render
+                    await new Promise(resolve => setTimeout(resolve, 300));
+
                     // Export at full resolution (1080x1350)
                     const dataUrl = await toPng(canvasElement, {
                         quality: 1.0,
@@ -74,13 +77,25 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                         skipFonts: false,
                     });
 
-                    // Convert data URL to blob and add to ZIP
-                    const base64Data = dataUrl.split(',')[1];
-                    zip.file(`slide-${i + 1}.png`, base64Data, { base64: true });
+                    // Convert data URL to blob properly
+                    const response = await fetch(dataUrl);
+                    const blob = await response.blob();
+
+                    // Verify blob has content
+                    if (blob.size === 0) {
+                        throw new Error(`Slide ${i + 1} failed to capture`);
+                    }
+
+                    // Add blob to ZIP
+                    zip.file(`slide-${i + 1}.png`, blob);
                 }
 
                 // Generate ZIP file
-                const zipBlob = await zip.generateAsync({ type: "blob" });
+                const zipBlob = await zip.generateAsync({
+                    type: "blob",
+                    compression: "DEFLATE",
+                    compressionOptions: { level: 6 }
+                });
 
                 // Create download link for ZIP
                 const link = document.createElement("a");
@@ -88,8 +103,8 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 link.href = URL.createObjectURL(zipBlob);
                 link.click();
 
-                // Clean up
-                URL.revokeObjectURL(link.href);
+                // Clean up after a delay
+                setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 
                 // Restore original state
                 setCarouselData({
