@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { TemplateType, CarouselData } from "../page";
+import JSZip from "jszip";
 
 interface ExportButtonProps {
     templateType: TemplateType;
@@ -13,7 +14,9 @@ interface ExportButtonProps {
 export default function ExportButton({ templateType, carouselData, setCarouselData }: ExportButtonProps) {
     const [isExporting, setIsExporting] = useState(false);
 
-    const handleExport = async () => {
+    const handleExport = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
         setIsExporting(true);
 
         try {
@@ -38,7 +41,10 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     await new Promise(resolve => setTimeout(resolve, 300));
                 }
 
-                // Export each slide
+                // Create ZIP file
+                const zip = new JSZip();
+
+                // Export each slide and add to ZIP
                 for (let i = 0; i < 5; i++) {
                     // Set current slide
                     setCarouselData({ ...carouselData, currentSlide: i, viewAllSlides: false });
@@ -68,15 +74,22 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                         skipFonts: false,
                     });
 
-                    // Create download link
-                    const link = document.createElement("a");
-                    link.download = `carousel-slide-${i + 1}-${timestamp}.png`;
-                    link.href = dataUrl;
-                    link.click();
-
-                    // Delay between downloads
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    // Convert data URL to blob and add to ZIP
+                    const base64Data = dataUrl.split(',')[1];
+                    zip.file(`slide-${i + 1}.png`, base64Data, { base64: true });
                 }
+
+                // Generate ZIP file
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+
+                // Create download link for ZIP
+                const link = document.createElement("a");
+                link.download = `carousel-slides-${timestamp}.zip`;
+                link.href = URL.createObjectURL(zipBlob);
+                link.click();
+
+                // Clean up
+                URL.revokeObjectURL(link.href);
 
                 // Restore original state
                 setCarouselData({
@@ -132,6 +145,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
 
     return (
         <button
+            type="button"
             onClick={handleExport}
             disabled={isExporting}
             className="
