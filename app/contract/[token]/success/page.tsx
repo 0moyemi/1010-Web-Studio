@@ -35,33 +35,33 @@ export default function ContractSuccess() {
                         </p>
 
                         {/* Email Check Section */}
-                        <div className="mb-8 rounded-xl border p-6 text-left" style={{ borderColor: 'var(--highlight)', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(79, 70, 229, 0.05))' }}>
-                            <div className="flex items-start gap-4">
-                                <div className="rounded-full p-2" style={{ background: 'rgba(79, 70, 229, 0.2)' }}>
-                                    <Mail size={24} style={{ color: 'var(--highlight)' }} />
+                        <div className="mb-8 rounded-xl border p-4 sm:p-6 text-left overflow-hidden" style={{ borderColor: 'var(--highlight)', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(79, 70, 229, 0.05))' }}>
+                            <div className="flex items-start gap-3 sm:gap-4">
+                                <div className="flex-shrink-0 rounded-full p-2" style={{ background: 'rgba(79, 70, 229, 0.2)' }}>
+                                    <Mail size={20} className="sm:w-6 sm:h-6" style={{ color: 'var(--highlight)' }} />
                                 </div>
-                                <div className="flex-1">
-                                    <h2 className="mb-2 text-lg font-semibold" style={{ color: 'var(--highlight)' }}>
+                                <div className="flex-1 min-w-0">
+                                    <h2 className="mb-2 text-base sm:text-lg font-semibold" style={{ color: 'var(--highlight)' }}>
                                         Check Your Email
                                     </h2>
-                                    <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                                    <p className="mb-4 text-xs sm:text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                                         We've sent a welcome message with your contract to:
                                     </p>
-                                    <div className="mb-4 rounded-lg px-4 py-3 font-medium text-center" style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'var(--highlight)' }}>
+                                    <div className="mb-4 rounded-lg px-3 py-2 sm:px-4 sm:py-3 font-medium text-center break-all overflow-wrap-anywhere text-xs sm:text-sm" style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'var(--highlight)', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                         {clientEmail}
                                     </div>
                                     <div className="space-y-2">
                                         <div className="flex items-start gap-2">
-                                            <AlertCircle size={16} className="mt-0.5" style={{ color: 'var(--text-secondary)' }} />
-                                            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                            <AlertCircle size={16} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--text-secondary)' }} />
+                                            <p className="text-xs flex-1 min-w-0" style={{ color: 'var(--text-secondary)' }}>
                                                 <strong>Don't see it?</strong> Check your <strong>Spam</strong> or <strong>Promotions</strong> folder
                                             </p>
                                         </div>
                                         <div className="flex items-start gap-2">
-                                            <svg className="h-4 w-4 mt-0.5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                            <p className="text-xs flex-1 min-w-0" style={{ color: 'var(--text-secondary)' }}>
                                                 It may take up to <strong>5 minutes</strong> to arrive
                                             </p>
                                         </div>
