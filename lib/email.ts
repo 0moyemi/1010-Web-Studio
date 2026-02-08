@@ -104,7 +104,7 @@ Muhammad Omoyemi
         });
 
         await transporter.sendMail({
-            from: '"1010 Web Studio" <director@1010web.studio>',
+            from: '"1010 Web Studio" <1010webstudio@1010web.studio>',
             to: to,
             subject: 'Welcome to 1010 Web Studio - Your Contract',
             text: welcomeMessage,
