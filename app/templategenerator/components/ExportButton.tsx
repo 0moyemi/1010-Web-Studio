@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
-import { TemplateType, CarouselData } from "../page";
+import { TemplateType, CarouselData, VideoData } from "../page";
 import JSZip from "jszip";
 
 interface ExportButtonProps {
     templateType: TemplateType;
     carouselData?: CarouselData;
     setCarouselData?: (data: CarouselData) => void;
+    videoData?: VideoData;
 }
 
-export default function ExportButton({ templateType, carouselData, setCarouselData }: ExportButtonProps) {
+export default function ExportButton({ templateType, carouselData, setCarouselData, videoData }: ExportButtonProps) {
     const [isExporting, setIsExporting] = useState(false);
 
     const handleExport = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -113,32 +114,45 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     viewAllSlides: wasViewingAll
                 });
             } else {
-                // Single export for quote template
-                // Wait for all images to be fully loaded
+                // Single export for quote and video templates
+                // Wait for all images and videos to be fully loaded
                 const images = canvasElement.querySelectorAll('img');
-                await Promise.all(
-                    Array.from(images).map(img => {
+                const videos = canvasElement.querySelectorAll('video');
+
+                await Promise.all([
+                    ...Array.from(images).map(img => {
                         if (img.complete) return Promise.resolve();
-                        return new Promise<void>((resolve, reject) => {
+                        return new Promise<void>((resolve) => {
                             img.onload = () => resolve();
-                            img.onerror = reject;
-                            // Timeout after 5 seconds
+                            img.onerror = () => resolve();
+                            setTimeout(() => resolve(), 5000);
+                        });
+                    }),
+                    ...Array.from(videos).map(video => {
+                        if (video.readyState >= 2) return Promise.resolve();
+                        return new Promise<void>((resolve) => {
+                            video.onloadeddata = () => resolve();
+                            video.onerror = () => resolve();
                             setTimeout(() => resolve(), 5000);
                         });
                     })
-                );
+                ]);
 
                 // Extra wait for rendering
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Set pixel ratio based on template type
+                const pixelRatio = templateType === "video" ? 2.0 : 2.5;
 
                 const dataUrl = await toPng(canvasElement, {
                     quality: 1.0,
-                    pixelRatio: 2.5,
+                    pixelRatio: pixelRatio,
                     cacheBust: true,
                     backgroundColor: "#040d1f",
                     skipFonts: false,
+                    includeQueryParams: true,
                     filter: (node) => {
-                        // Ensure we capture everything
+                        // Ensure we capture everything including images and videos
                         return true;
                     }
                 });
@@ -155,15 +169,13 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             console.error("Export failed:", error);
             alert("Failed to export image. Please try again.");
             setIsExporting(false);
-        }
-    };
 
-    return (
-        <button
-            type="button"
-            onClick={handleExport}
-            disabled={isExporting}
-            className="
+            return (
+                <button
+                    type="button"
+                    onClick={handleExport}
+                    disabled={isExporting}
+                    className="
         group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-white text-sm sm:text-base
         bg-gradient-to-r from-[var(--highlight)] to-[rgba(59,89,152,0.7)]
         hover:shadow-xl hover:shadow-[rgba(59,89,152,0.3)]
@@ -171,27 +183,27 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
         transition-all duration-300 overflow-hidden
         active:scale-95
       "
-        >
-            {/* Animated background on hover */}
-            <div
-                className="absolute inset-0 bg-gradient-to-r from-[rgba(59,89,152,0.8)] to-[var(--highlight)] 
+                >
+                    {/* Animated background on hover */}
+                    <div
+                        className="absolute inset-0 bg-gradient-to-r from-[rgba(59,89,152,0.8)] to-[var(--highlight)] 
                    opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            />
+                    />
 
-            {/* Button content */}
-            <span className="relative flex items-center gap-2">
-                {isExporting ? (
-                    <>
-                        <Loader2 size={20} className="animate-spin" />
-                        Exporting...
-                    </>
-                ) : (
-                    <>
-                        <Download size={20} />
-                        Export as PNG
-                    </>
-                )}
-            </span>
-        </button>
-    );
-}
+                    {/* Button content */}
+                    <span className="relative flex items-center gap-2">
+                        {isExporting ? (
+                            <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Exporting...
+                            </>
+                        ) : (
+                            <>
+                                <Download size={20} />
+                                Export as PNG
+                            </>
+                        )}
+                    </span>
+                </button>
+            );
+        }

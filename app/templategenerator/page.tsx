@@ -7,7 +7,7 @@ import TemplateCanvas from "./components/TemplateCanvas";
 import ControlPanel from "./components/ControlPanel";
 import ExportButton from "./components/ExportButton";
 
-export type TemplateType = "quote" | "carousel";
+export type TemplateType = "quote" | "carousel" | "video";
 
 export interface QuoteData {
     quote: string;
@@ -28,6 +28,15 @@ export interface CarouselData {
     tipTitleFontSize: number;
     tipDescriptionFontSize: number;
     ctaFontSize: number;
+}
+
+export interface VideoData {
+    video: string | null;
+    caption: string;
+    captionFontSize: number;
+    videoAspectRatio: "1:1" | "4:5" | "9:16";
+    videoPosition: { x: number; y: number };
+    videoScale: number;
 }
 
 export default function TemplateGenerator() {
@@ -66,16 +75,27 @@ export default function TemplateGenerator() {
         ctaFontSize: 30,
     });
 
+    const [videoData, setVideoData] = useState<VideoData>({
+        video: null,
+        caption: "Transform your business with simple digital solutions",
+        captionFontSize: 26,
+        videoAspectRatio: "9:16",
+        videoPosition: { x: 50, y: 50 },
+        videoScale: 1,
+    });
+
     // Load saved data from localStorage on mount
     useEffect(() => {
         try {
             const savedTemplateType = localStorage.getItem('templateType');
             const savedQuoteData = localStorage.getItem('quoteData');
             const savedCarouselData = localStorage.getItem('carouselData');
+            const savedVideoData = localStorage.getItem('videoData');
 
             if (savedTemplateType) setTemplateType(savedTemplateType as TemplateType);
             if (savedQuoteData) setQuoteData(JSON.parse(savedQuoteData));
             if (savedCarouselData) setCarouselData(JSON.parse(savedCarouselData));
+            if (savedVideoData) setVideoData(JSON.parse(savedVideoData));
         } catch (error) {
             console.error('Error loading saved data:', error);
         }
@@ -87,10 +107,11 @@ export default function TemplateGenerator() {
             localStorage.setItem('templateType', templateType);
             localStorage.setItem('quoteData', JSON.stringify(quoteData));
             localStorage.setItem('carouselData', JSON.stringify(carouselData));
+            localStorage.setItem('videoData', JSON.stringify(videoData));
         } catch (error) {
             console.error('Error saving data:', error);
         }
-    }, [templateType, quoteData, carouselData]);
+    }, [templateType, quoteData, carouselData, videoData]);
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -108,10 +129,10 @@ export default function TemplateGenerator() {
                 </div>
 
                 {/* Template Type Selector */}
-                <div className="flex justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+                <div className="flex justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 flex-wrap">
                     <button
                         onClick={() => setTemplateType("quote")}
-                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base ${templateType === "quote"
+                        className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base min-w-[100px] ${templateType === "quote"
                             ? "bg-[var(--highlight)] text-white shadow-lg"
                             : "bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)]"
                             }`}
@@ -120,12 +141,21 @@ export default function TemplateGenerator() {
                     </button>
                     <button
                         onClick={() => setTemplateType("carousel")}
-                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base ${templateType === "carousel"
+                        className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base min-w-[100px] ${templateType === "carousel"
                             ? "bg-[var(--highlight)] text-white shadow-lg"
                             : "bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)]"
                             }`}
                     >
                         Carousel Post
+                    </button>
+                    <button
+                        onClick={() => setTemplateType("video")}
+                        className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base min-w-[100px] ${templateType === "video"
+                            ? "bg-[var(--highlight)] text-white shadow-lg"
+                            : "bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)]"
+                            }`}
+                    >
+                        Video Clip
                     </button>
                 </div>
 
@@ -137,11 +167,13 @@ export default function TemplateGenerator() {
                             templateType={templateType}
                             quoteData={quoteData}
                             carouselData={carouselData}
+                            videoData={videoData}
                         />
                         <ExportButton
                             templateType={templateType}
                             carouselData={carouselData}
                             setCarouselData={setCarouselData}
+                            videoData={videoData}
                         />
                     </div>
 
@@ -151,8 +183,10 @@ export default function TemplateGenerator() {
                             templateType={templateType}
                             quoteData={quoteData}
                             carouselData={carouselData}
+                            videoData={videoData}
                             setQuoteData={setQuoteData}
                             setCarouselData={setCarouselData}
+                            setVideoData={setVideoData}
                         />
                     </div>
                 </div>

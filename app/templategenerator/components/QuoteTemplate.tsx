@@ -22,7 +22,6 @@ export default function QuoteTemplate({ data }: QuoteTemplateProps) {
                                 objectPosition: `${data.imagePosition.x}% ${data.imagePosition.y}%`,
                                 transform: `scale(${data.imageScale})`,
                             }}
-                            crossOrigin="anonymous"
                         />
 
                         {/* Fade Gradient Overlay */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { TemplateType, QuoteData, CarouselData } from "../page";
+import { TemplateType, QuoteData, CarouselData, VideoData } from "../page";
 import ImageUploader from "./ImageUploader";
 import { Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -8,16 +8,20 @@ interface ControlPanelProps {
     templateType: TemplateType;
     quoteData: QuoteData;
     carouselData: CarouselData;
+    videoData: VideoData;
     setQuoteData: (data: QuoteData) => void;
     setCarouselData: (data: CarouselData) => void;
+    setVideoData: (data: VideoData) => void;
 }
 
 export default function ControlPanel({
     templateType,
     quoteData,
     carouselData,
+    videoData,
     setQuoteData,
     setCarouselData,
+    setVideoData,
 }: ControlPanelProps) {
     return (
         <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-6 backdrop-blur-sm">
@@ -27,11 +31,13 @@ export default function ControlPanel({
 
             {templateType === "quote" ? (
                 <QuoteControls quoteData={quoteData} setQuoteData={setQuoteData} />
-            ) : (
+            ) : templateType === "carousel" ? (
                 <CarouselControls
                     carouselData={carouselData}
                     setCarouselData={setCarouselData}
                 />
+            ) : (
+                <VideoControls videoData={videoData} setVideoData={setVideoData} />
             )}
         </div>
     );
@@ -397,6 +403,225 @@ function CarouselControls({
                         <span>Small</span>
                         <span>Large</span>
                     </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Video Controls
+function VideoControls({
+    videoData,
+    setVideoData,
+}: {
+    videoData: VideoData;
+    setVideoData: (data: VideoData) => void;
+}) {
+    const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setVideoData({ ...videoData, video: event.target?.result as string });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            {/* Video Upload */}
+            <div>
+                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                    Upload Video
+                </label>
+                <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    className="w-full px-4 py-3 bg-[var(--card-background)] border border-[var(--border-color)] 
+                   rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)]
+                   focus:outline-none focus:ring-2 focus:ring-[var(--highlight)]
+                   file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                   file:text-sm file:font-semibold file:bg-[var(--highlight)]
+                   file:text-white hover:file:bg-[var(--highlight)]/80 file:cursor-pointer"
+                />
+                <p className="text-xs text-[var(--text-muted)] mt-2">
+                    Supports MP4, MOV, WebM • Max 50MB recommended
+                </p>
+                {videoData.video && (
+                    <button
+                        onClick={() => setVideoData({ ...videoData, video: null })}
+                        className="mt-2 text-xs text-red-400 hover:text-red-300 transition-colors"
+                    >
+                        Remove Video
+                    </button>
+                )}
+            </div>
+
+            {/* Video Aspect Ratio Selector */}
+            {videoData.video && (
+                <div>
+                    <label className="block text-sm font-semibold text-[var(--text-primary)] mb-3">
+                        Video Frame Ratio
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {[
+                            { value: "9:16", label: "Vertical" },
+                            { value: "4:5", label: "Portrait" },
+                            { value: "1:1", label: "Square" },
+                        ].map((ratio) => (
+                            <button
+                                key={ratio.value}
+                                onClick={() =>
+                                    setVideoData({
+                                        ...videoData,
+                                        videoAspectRatio: ratio.value as "1:1" | "4:5" | "9:16",
+                                    })
+                                }
+                                className={`px-3 py-3 rounded-lg text-xs font-semibold transition-all ${videoData.videoAspectRatio === ratio.value
+                                        ? "bg-[var(--highlight)] text-white"
+                                        : "bg-[var(--card-background)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)]"
+                                    }`}
+                            >
+                                {ratio.label}
+                                <div className="text-[10px] opacity-70 mt-1">{ratio.value}</div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Video Position Controls */}
+            {videoData.video && (
+                <div className="space-y-4">
+                    <label className="block text-sm font-semibold text-[var(--text-primary)]">
+                        Video Position & Scale
+                    </label>
+
+                    {/* Horizontal Position */}
+                    <div>
+                        <label className="block text-xs text-[var(--text-muted)] mb-2">
+                            Horizontal Position
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={videoData.videoPosition.x}
+                            onChange={(e) =>
+                                setVideoData({
+                                    ...videoData,
+                                    videoPosition: {
+                                        ...videoData.videoPosition,
+                                        x: parseInt(e.target.value),
+                                    },
+                                })
+                            }
+                            className="w-full accent-[var(--highlight)]"
+                        />
+                        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
+                            <span>Left</span>
+                            <span>Center</span>
+                            <span>Right</span>
+                        </div>
+                    </div>
+
+                    {/* Vertical Position */}
+                    <div>
+                        <label className="block text-xs text-[var(--text-muted)] mb-2">
+                            Vertical Position
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={videoData.videoPosition.y}
+                            onChange={(e) =>
+                                setVideoData({
+                                    ...videoData,
+                                    videoPosition: {
+                                        ...videoData.videoPosition,
+                                        y: parseInt(e.target.value),
+                                    },
+                                })
+                            }
+                            className="w-full accent-[var(--highlight)]"
+                        />
+                        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
+                            <span>Top</span>
+                            <span>Center</span>
+                            <span>Bottom</span>
+                        </div>
+                    </div>
+
+                    {/* Scale */}
+                    <div>
+                        <label className="block text-xs text-[var(--text-muted)] mb-2">
+                            Zoom ({videoData.videoScale.toFixed(1)}x)
+                        </label>
+                        <input
+                            type="range"
+                            min="0.5"
+                            max="2"
+                            step="0.1"
+                            value={videoData.videoScale}
+                            onChange={(e) =>
+                                setVideoData({
+                                    ...videoData,
+                                    videoScale: parseFloat(e.target.value),
+                                })
+                            }
+                            className="w-full accent-[var(--highlight)]"
+                        />
+                        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
+                            <span>Zoom Out</span>
+                            <span>Zoom In</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Caption Text */}
+            <div>
+                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                    Caption
+                </label>
+                <textarea
+                    value={videoData.caption}
+                    onChange={(e) => setVideoData({ ...videoData, caption: e.target.value })}
+                    placeholder="Enter your caption..."
+                    rows={3}
+                    className="w-full px-4 py-3 bg-[var(--card-background)] border border-[var(--border-color)] 
+                   rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)]
+                   focus:outline-none focus:ring-2 focus:ring-[var(--highlight)] resize-none"
+                />
+                <p className="text-xs text-[var(--text-muted)] mt-1">
+                    Wrap words in *asterisks* to <span style={{ color: 'var(--highlight)' }}>highlight them</span>
+                </p>
+            </div>
+
+            {/* Caption Font Size Control */}
+            <div>
+                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                    Caption Font Size ({videoData.captionFontSize}px)
+                </label>
+                <input
+                    type="range"
+                    min="16"
+                    max="40"
+                    value={videoData.captionFontSize}
+                    onChange={(e) =>
+                        setVideoData({
+                            ...videoData,
+                            captionFontSize: parseInt(e.target.value),
+                        })
+                    }
+                    className="w-full accent-[var(--highlight)]"
+                />
+                <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
+                    <span>Small</span>
+                    <span>Large</span>
                 </div>
             </div>
         </div>

@@ -1,19 +1,22 @@
 "use client";
 
-import { TemplateType, QuoteData, CarouselData } from "../page";
+import { TemplateType, QuoteData, CarouselData, VideoData } from "../page";
 import QuoteTemplate from "./QuoteTemplate";
 import CarouselTemplate from "./CarouselTemplate";
+import VideoTemplate from "./VideoTemplate";
 
 interface TemplateCanvasProps {
     templateType: TemplateType;
     quoteData: QuoteData;
     carouselData: CarouselData;
+    videoData: VideoData;
 }
 
 export default function TemplateCanvas({
     templateType,
     quoteData,
     carouselData,
+    videoData,
 }: TemplateCanvasProps) {
     // If viewing all carousel slides, show them in a scrollable row
     if (templateType === "carousel" && carouselData.viewAllSlides) {
@@ -48,27 +51,28 @@ export default function TemplateCanvas({
     }
 
     return (
-        <div className="relative w-full max-w-md mx-auto"
-        >
-            {/* Canvas Container - Maintains 4:5 aspect ratio (1080x1350) */}
+        <div className="relative w-full max-w-md mx-auto">
+            {/* Canvas Container - Dynamic aspect ratio based on template type */}
             <div
                 id="template-canvas"
                 className="relative bg-[var(--background)] overflow-hidden shadow-2xl w-full rounded-lg"
                 style={{
-                    aspectRatio: "4/5",
+                    aspectRatio: templateType === "video" ? "9/16" : "4/5",
                     maxWidth: "432px",
                 }}
             >
                 {templateType === "quote" ? (
                     <QuoteTemplate data={quoteData} />
-                ) : (
+                ) : templateType === "carousel" ? (
                     <CarouselTemplate data={carouselData} />
+                ) : (
+                    <VideoTemplate data={videoData} />
                 )}
             </div>
 
             {/* Aspect Ratio Label */}
             <div className="absolute -top-7 sm:-top-8 right-0 text-[10px] sm:text-xs text-[var(--text-muted)] font-mono">
-                4:5 • 1080×1350px
+                {templateType === "video" ? "9:16 • 1080×1920px (Story)" : "4:5 • 1080×1350px"}
             </div>
         </div>
     );

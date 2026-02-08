@@ -143,10 +143,9 @@ function TipSlide({
                 style={{
                     background:
                         "linear-gradient(135deg, var(--highlight) 0%, rgba(59, 89, 152, 0.7) 100%)",
-                    boxShadow: "0 4px 12px rgba(59, 89, 152, 0.3)",
                 }}
             >
-                <span className="text-3xl font-bold text-white">{number}</span>
+                <span className="text-3xl font-bold text-white" style={{ textShadow: "none" }}>{number}</span>
             </div>
 
             {/* Description */}
