@@ -8,10 +8,10 @@ const nextConfig: NextConfig = {
         has: [
           {
             type: 'host',
-            value: '1010web.studio',
+            value: 'www.1010web.studio',
           },
         ],
-        destination: 'https://www.1010web.studio/:path*',
+        destination: 'https://1010web.studio/:path*',
         permanent: true,
       },
     ];

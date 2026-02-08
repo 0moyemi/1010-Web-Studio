@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.1010web.studio'),
+  metadataBase: new URL('https://1010web.studio'),
   alternates: {
     canonical: '/',
   },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Sales Systems for Small Businesses in Nigeria | 1010 Web Studio",
     description: "We help Nigerian small businesses sell online without stress. Simple product catalogs and sales systems that work.",
-    url: "https://www.1010web.studio",
+    url: "https://1010web.studio",
     siteName: "1010 Web Studio",
     locale: "en_NG",
     type: "website",
@@ -79,8 +79,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "1010 Web Studio",
-              "url": "https://www.1010web.studio",
-              "logo": "https://www.1010web.studio/1010%20Primary%20Logo.svg",
+              "url": "https://1010web.studio",
+              "logo": "https://1010web.studio/1010%20Primary%20Logo.svg",
               "description": "Sales systems and websites for small businesses in Nigeria. We help businesses sell online without stress using clean product catalogs and automated sales systems.",
               "areaServed": {
                 "@type": "Country",
