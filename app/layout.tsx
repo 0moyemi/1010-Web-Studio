@@ -13,6 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.1010web.studio'),
+  alternates: {
+    canonical: '/',
+  },
   title: "Sales Systems for Small Businesses in Nigeria | 1010 Web Studio",
   description: "We help Nigerian small businesses sell online without stress. Simple product catalogs, clean websites, and automated sales systems that let customers browse and order easily—no more endless WhatsApp back-and-forth.",
   keywords: "small business Nigeria, online selling Nigeria, product catalog, sales system, business website Nigeria, WhatsApp business, online store Nigeria",
@@ -40,9 +44,12 @@ export const metadata: Metadata = {
     images: ["https://www.1010web.studio/Primary Logo.svg"],
   },
   icons: {
-    icon: '/Primary Logo.svg',
-    shortcut: '/Primary Logo.svg',
-    apple: '/Primary Logo.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: '/apple-icon.png',
   },
   robots: {
     index: true,
