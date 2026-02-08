@@ -38,14 +38,14 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
         <div className="w-full h-full relative overflow-hidden bg-[#040d1f]">
             {/* Caption Section - Top 1/5 */}
             <div
-                className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-6"
+                className="absolute top-0 left-0 right-0 z-20 flex items-center justify-start px-6"
                 style={{
                     height: "20%",
                     background: "linear-gradient(to bottom, rgba(4, 13, 31, 0.95) 0%, rgba(4, 13, 31, 0.85) 100%)",
                 }}
             >
                 <h2
-                    className="font-bold text-white text-center leading-tight"
+                    className="font-bold text-white text-left leading-tight"
                     style={{
                         fontSize: `${data.captionFontSize}px`,
                         textShadow: "0 2px 8px rgba(0, 0, 0, 0.8)",
@@ -55,21 +55,21 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                 >
                     {renderCaption()}
                 </h2>
+            </div>
 
-                {/* Website Watermark - Top Right */}
-                <div className="absolute top-3 right-3">
-                    <span
-                        className="text-white/90 font-mono font-semibold tracking-wide px-3 py-1.5 rounded-full"
-                        style={{
-                            fontSize: "11px",
-                            textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
-                            background: "rgba(4, 13, 31, 0.6)",
-                            backdropFilter: "blur(8px)",
-                        }}
-                    >
-                        www.1010web.studio
-                    </span>
-                </div>
+            {/* Website Watermark - Bottom Center */}
+            <div className="absolute bottom-3 left-0 right-0 z-30 flex items-center justify-center">
+                <span
+                    className="text-white/90 font-mono font-semibold tracking-wide px-3 py-1.5 rounded-full"
+                    style={{
+                        fontSize: "11px",
+                        textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
+                        background: "rgba(4, 13, 31, 0.6)",
+                        backdropFilter: "blur(8px)",
+                    }}
+                >
+                    www.1010web.studio
+                </span>
             </div>
 
             {/* Video Section - Bottom 4/5 */}
