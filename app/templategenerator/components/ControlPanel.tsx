@@ -460,9 +460,19 @@ function VideoControls({
     const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Check file size (Safari can struggle with large files as data URLs)
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            if (file.size > maxSize) {
+                alert("Video file is too large. Please use a video under 50MB for best compatibility.");
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = (event) => {
                 setVideoData({ ...videoData, video: event.target?.result as string });
+            };
+            reader.onerror = () => {
+                alert("Failed to load video. Please try a different file or use a smaller video.");
             };
             reader.readAsDataURL(file);
         }
@@ -477,7 +487,8 @@ function VideoControls({
                 </label>
                 <input
                     type="file"
-                    accept="video/*"
+                    accept="video/mp4,video/quicktime,video/webm,video/*"
+                    capture="environment"
                     onChange={handleVideoUpload}
                     className="w-full px-4 py-3 bg-[var(--card-background)] border border-[var(--border-color)] 
                    rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)]
@@ -487,7 +498,8 @@ function VideoControls({
                    file:text-white hover:file:bg-[var(--highlight)]/80 file:cursor-pointer"
                 />
                 <p className="text-xs text-[var(--text-muted)] mt-2">
-                    Supports MP4, MOV, WebM • Max 50MB recommended
+                    Supports MP4, MOV, WebM • Max 50MB recommended<br />
+                    📱 Mobile: Downloads go to your Downloads folder
                 </p>
                 {videoData.video && (
                     <button

@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { TemplateType, CarouselData, VideoData } from "../page";
 import JSZip from "jszip";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 interface ExportButtonProps {
     templateType: TemplateType;
@@ -17,37 +15,6 @@ interface ExportButtonProps {
 export default function ExportButton({ templateType, carouselData, setCarouselData, videoData }: ExportButtonProps) {
     const [isExporting, setIsExporting] = useState(false);
     const [exportProgress, setExportProgress] = useState("");
-    const ffmpegRef = useRef<FFmpeg | null>(null);
-    const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
-
-    // Load FFmpeg
-    const loadFFmpeg = async () => {
-        if (ffmpegLoaded && ffmpegRef.current) {
-            return ffmpegRef.current;
-        }
-
-        setExportProgress("Loading video converter...");
-        const ffmpeg = new FFmpeg();
-
-        ffmpeg.on("log", ({ message }) => {
-            console.log(message);
-        });
-
-        ffmpeg.on("progress", ({ progress }) => {
-            const percentage = Math.round(progress * 100);
-            setExportProgress(`Converting to MP4: ${percentage}%`);
-        });
-
-        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-        await ffmpeg.load({
-            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-        });
-
-        ffmpegRef.current = ffmpeg;
-        setFfmpegLoaded(true);
-        return ffmpeg;
-    };
 
     const handleExport = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -133,13 +100,19 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 });
 
                 // Create download link for ZIP
+                const zipUrl = URL.createObjectURL(zipBlob);
                 const link = document.createElement("a");
+                link.href = zipUrl;
                 link.download = `carousel-slides-${timestamp}.zip`;
-                link.href = URL.createObjectURL(zipBlob);
+                link.style.display = 'none';
+                document.body.appendChild(link);
                 link.click();
 
                 // Clean up after a delay
-                setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(zipUrl);
+                }, 100);
 
                 // Restore original state
                 setCarouselData({
@@ -151,8 +124,14 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 // Single export for quote and video templates
                 if (templateType === "video") {
                     // For video, use video export instead of PNG
-                    await exportVideoWithOverlays();
-                    setTimeout(() => setIsExporting(false), 800);
+                    try {
+                        await exportVideoWithOverlays();
+                    } catch (videoError) {
+                        console.error("Video export error:", videoError);
+                        setIsExporting(false);
+                        alert(`Video export failed: ${videoError instanceof Error ? videoError.message : 'Unknown error'}`);
+                        return;
+                    }
                     return;
                 }
 
@@ -195,10 +174,23 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     }
                 });
 
+                // Convert to blob for better mobile compatibility
+                const response = await fetch(dataUrl);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+
                 const link = document.createElement("a");
+                link.href = blobUrl;
                 link.download = `${templateType}-post-${timestamp}.png`;
-                link.href = dataUrl;
+                link.style.display = 'none';
+                document.body.appendChild(link);
                 link.click();
+
+                // Cleanup
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
             }
 
             // Success feedback
@@ -210,324 +202,337 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
         }
     };
 
-    // Export video with overlays burned in
+    // Canva-style approach: Cloudinary does heavy lifting, client adds caption
     const exportVideoWithOverlays = async () => {
         if (!videoData?.video) {
+            setIsExporting(false);
             alert("Please upload a video first");
             return;
         }
 
-        const canvasElement = document.getElementById("template-canvas");
-        if (!canvasElement) {
-            throw new Error("Canvas element not found");
-        }
-
         try {
-            // Check MediaRecorder support
-            if (!window.MediaRecorder) {
-                throw new Error("Video recording is not supported in your browser. Please try Chrome, Edge, or Firefox.");
+            // Step 1: Upload to Cloudinary for processing (adds watermark, preserves audio)
+            setExportProgress("Preparing video...");
+
+            const response = await fetch(videoData.video);
+            const blob = await response.blob();
+            const videoFile = new File([blob], "video.mp4", { type: blob.type });
+
+            const formData = new FormData();
+            formData.append('video', videoFile);
+            formData.append('videoAspectRatio', videoData.videoAspectRatio);
+
+            // Use XMLHttpRequest for upload progress tracking
+            const processedVideoUrl = await new Promise<string>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                // Track upload progress
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentComplete = Math.round((event.loaded / event.total) * 100);
+                        setExportProgress(`Uploading to Cloudinary... ${percentComplete}%`);
+                    }
+                };
+
+                xhr.upload.onloadend = () => {
+                    setExportProgress("Processing video on server (30-60 seconds)...");
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            resolve(result.url);
+                        } catch (e) {
+                            reject(new Error('Failed to parse response'));
+                        }
+                    } else {
+                        try {
+                            const errorData = JSON.parse(xhr.responseText);
+                            reject(new Error(errorData.details || 'Failed to process video'));
+                        } catch (e) {
+                            reject(new Error(`Server error: ${xhr.status}`));
+                        }
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Network error during upload'));
+
+                xhr.open('POST', '/api/video/process');
+                xhr.send(formData);
+            });
+
+            console.log('Processed video URL:', processedVideoUrl);
+
+            // Step 2: Load the processed video from Cloudinary with progress
+            setExportProgress("Downloading processed video... 0%");
+
+            const processedVideo = document.createElement('video');
+            processedVideo.crossOrigin = "anonymous";
+            processedVideo.muted = true; // Mute playback (but audio tracks still captured)
+            processedVideo.style.display = 'none';
+            document.body.appendChild(processedVideo);
+
+            // Download video with progress tracking
+            const videoBlob = await new Promise<Blob>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', processedVideoUrl, true);
+                xhr.responseType = 'blob';
+
+                xhr.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentComplete = Math.round((event.loaded / event.total) * 100);
+                        setExportProgress(`Downloading processed video... ${percentComplete}%`);
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        resolve(xhr.response);
+                    } else {
+                        reject(new Error(`Failed to download video: ${xhr.status}`));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Network error during download'));
+                xhr.send();
+            });
+
+            const videoUrl = URL.createObjectURL(videoBlob);
+            processedVideo.src = videoUrl;
+
+            await new Promise<void>((resolve, reject) => {
+                processedVideo.onloadedmetadata = () => resolve();
+                processedVideo.onerror = () => reject(new Error("Failed to load processed video"));
+                setTimeout(() => reject(new Error("Video load timeout")), 20000);
+            });
+
+            const duration = processedVideo.duration;
+            console.log('Video loaded, duration:', duration);
+
+            // Check if video has audio (captureStream might not be in TypeScript types)
+            const videoCaptureStream = (processedVideo as any).captureStream ?
+                (processedVideo as any).captureStream() :
+                (processedVideo as any).mozCaptureStream?.();
+
+            if (videoCaptureStream) {
+                const testAudioTracks = videoCaptureStream.getAudioTracks();
+                console.log('Video has audio tracks:', testAudioTracks.length > 0);
+                if (testAudioTracks.length === 0) {
+                    console.error('WARNING: Processed video has no audio tracks! Check Cloudinary transformation.');
+                }
+                videoCaptureStream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
             }
 
-            // Check codec support - try multiple options
-            let mimeType = '';
-            const codecs = [
-                'video/webm;codecs=vp9,opus',
-                'video/webm;codecs=vp8,opus',
-                'video/webm;codecs=vp9',
-                'video/webm;codecs=vp8',
-                'video/webm'
-            ];
+            // Calculate dimensions
+            let videoWidth: number;
+            const videoHeight = 1920;
 
-            for (const codec of codecs) {
-                if (MediaRecorder.isTypeSupported(codec)) {
-                    mimeType = codec;
-                    break;
+            switch (videoData.videoAspectRatio) {
+                case "9:16": videoWidth = 1080; break;
+                case "4:5": videoWidth = 1536; break;
+                case "1:1": videoWidth = 1920; break;
+                default: videoWidth = 1080;
+            }
+
+            const captionHeight = videoHeight * 0.2;
+            const captionFontSize = videoData.captionFontSize * (videoWidth / 432);
+            const captionPadding = videoWidth * 0.055;
+            const captionBottomPadding = videoWidth * 0.037;
+
+            // Step 3: Create canvas for compositing (processed video + caption)
+            const canvas = document.createElement('canvas');
+            canvas.width = videoWidth;
+            canvas.height = videoHeight;
+            const ctx = canvas.getContext('2d', { alpha: false })!;
+
+            // Pre-render caption overlay with text highlighting
+            const captionCanvas = document.createElement('canvas');
+            captionCanvas.width = videoWidth;
+            captionCanvas.height = captionHeight;
+            const cCtx = captionCanvas.getContext('2d')!;
+
+            // Caption background gradient
+            const gradient = cCtx.createLinearGradient(0, 0, 0, captionHeight);
+            gradient.addColorStop(0, 'rgba(4, 13, 31, 0.95)');
+            gradient.addColorStop(1, 'rgba(4, 13, 31, 0.85)');
+            cCtx.fillStyle = gradient;
+            cCtx.fillRect(0, 0, videoWidth, captionHeight);
+
+            // Parse caption text with highlighting (*text* = highlighted)
+            cCtx.font = `bold ${captionFontSize}px Arial, sans-serif`;
+            cCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+            cCtx.shadowBlur = 8;
+            cCtx.shadowOffsetY = 2;
+            cCtx.textBaseline = 'bottom';
+
+            const parts = videoData.caption.split(/(\*[^*]+\*)/g);
+            const words: { text: string, isHighlight: boolean }[] = [];
+
+            parts.forEach(part => {
+                if (!part) return;
+                const isHighlight = part.startsWith('*') && part.endsWith('*');
+                const text = isHighlight ? part.slice(1, -1) : part;
+                text.split(' ').forEach(word => {
+                    if (word.trim()) words.push({ text: word, isHighlight });
+                });
+            });
+
+            // Word wrap with color support
+            let line: { text: string, isHighlight: boolean }[] = [];
+            let y = captionHeight - captionBottomPadding;
+            const lineHeight = captionFontSize * 1.3;
+            const lines: { text: string, isHighlight: boolean }[][] = [];
+
+            words.forEach(wordObj => {
+                const testLine = [...line, wordObj];
+                const testText = testLine.map(w => w.text).join(' ');
+                const metrics = cCtx.measureText(testText);
+
+                if (metrics.width > videoWidth - (captionPadding * 2) && line.length > 0) {
+                    lines.push(line);
+                    line = [wordObj];
+                } else {
+                    line = testLine;
+                }
+            });
+            if (line.length > 0) lines.push(line);
+
+            // Draw lines from bottom up with highlighting
+            lines.reverse().forEach((lineWords, lineIndex) => {
+                let x = captionPadding;
+                const lineY = y - (lineIndex * lineHeight);
+
+                lineWords.forEach((wordObj, wordIndex) => {
+                    // Apply color: blue for highlighted, white for normal
+                    cCtx.fillStyle = wordObj.isHighlight ? '#3b5998' : '#ffffff';
+                    const wordText = wordObj.text + (wordIndex < lineWords.length - 1 ? ' ' : '');
+                    cCtx.fillText(wordText, x, lineY);
+                    x += cCtx.measureText(wordText).width;
+                });
+            });
+
+            // Step 4: Record canvas with caption overlay + audio from processed video
+            const canvasStream = canvas.captureStream(30);
+
+            // Capture audio from the processed video (with browser compatibility)
+            const videoStream = (processedVideo as any).captureStream ?
+                (processedVideo as any).captureStream() :
+                (processedVideo as any).mozCaptureStream();
+            const audioTracks = videoStream.getAudioTracks();
+
+            // Create combined stream: video from canvas + audio from processed video
+            const combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...audioTracks
+            ]);
+
+            console.log('Audio tracks captured:', audioTracks.length);
+            if (audioTracks.length > 0) {
+                console.log('Audio track settings:', audioTracks[0].getSettings());
+            } else {
+                console.warn('No audio tracks found in processed video!');
+            }
+
+            // Try vp9 with opus audio, fallback if not supported
+            let mimeType = 'video/webm;codecs=vp9,opus';
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                console.warn('vp9,opus not supported, trying vp8,opus');
+                mimeType = 'video/webm;codecs=vp8,opus';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    console.warn('vp8,opus not supported, using default webm');
+                    mimeType = 'video/webm';
                 }
             }
 
-            if (!mimeType) {
-                throw new Error("No supported video codec found. Please try a different browser.");
-            }
-
-            // Create a hidden video element to get the source video
-            const sourceVideo = document.createElement('video');
-            sourceVideo.src = videoData.video;
-            sourceVideo.muted = true;
-            sourceVideo.crossOrigin = "anonymous";
-            sourceVideo.style.display = 'none';
-            document.body.appendChild(sourceVideo);
-
-            // Wait for video to load
-            await new Promise<void>((resolve, reject) => {
-                sourceVideo.onloadedmetadata = () => resolve();
-                sourceVideo.onerror = (e) => reject(new Error("Failed to load video. Make sure the file is a valid video format."));
-                // Timeout after 10 seconds
-                setTimeout(() => reject(new Error("Video loading timed out")), 10000);
-            });
-
-            const duration = sourceVideo.duration;
-
-            // Calculate canvas dimensions based on video aspect ratio
-            // Height is always 1920px (the "16" part), width adapts
-            const videoHeight = 1920;
-            let videoWidth: number;
-
-            switch (videoData.videoAspectRatio) {
-                case "9:16":
-                    videoWidth = 1080;  // 9/16 * 1920
-                    break;
-                case "4:5":
-                    videoWidth = 1536;  // 4/5 * 1920
-                    break;
-                case "1:1":
-                    videoWidth = 1920;  // 1/1 * 1920
-                    break;
-                default:
-                    videoWidth = 1080;
-            }
-
-            // Create canvas for recording
-            const recordCanvas = document.createElement('canvas');
-            recordCanvas.width = videoWidth;
-            recordCanvas.height = videoHeight;
-            const ctx = recordCanvas.getContext('2d', { willReadFrequently: true });
-
-            if (!ctx) {
-                throw new Error("Failed to get canvas context");
-            }
-
-            // Setup MediaRecorder with detected codec
-            const stream = recordCanvas.captureStream(60); // 60 FPS for high quality
-            const mediaRecorder = new MediaRecorder(stream, {
+            const mediaRecorder = new MediaRecorder(combinedStream, {
                 mimeType: mimeType,
-                videoBitsPerSecond: 20000000, // 20 Mbps for high quality
+                videoBitsPerSecond: 8000000, // 8 Mbps for good quality
             });
 
             const chunks: Blob[] = [];
-            mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) {
-                    chunks.push(e.data);
-                }
-            };
+            mediaRecorder.ondataavailable = (e) => e.data.size > 0 && chunks.push(e.data);
 
-            // When recording is done, convert to MP4 and download
-            mediaRecorder.onstop = async () => {
-                try {
-                    const webmBlob = new Blob(chunks, { type: mimeType });
+            mediaRecorder.onstop = () => {
+                setExportProgress("Finalizing video... (this may take a moment)");
 
-                    setExportProgress("Recording complete. Converting to MP4...");
-
-                    // Load FFmpeg
-                    const ffmpeg = await loadFFmpeg();
-
-                    // Write WebM to FFmpeg virtual file system
-                    await ffmpeg.writeFile("input.webm", await fetchFile(webmBlob));
-
-                    // Convert WebM to MP4
-                    setExportProgress("Converting to MP4...");
-                    await ffmpeg.exec([
-                        "-i", "input.webm",
-                        "-c:v", "libx264",
-                        "-preset", "fast",
-                        "-crf", "22",
-                        "-c:a", "aac",
-                        "-b:a", "192k",
-                        "-movflags", "+faststart",
-                        "output.mp4"
-                    ]);
-
-                    // Read the MP4 file
-                    const data = await ffmpeg.readFile("output.mp4") as Uint8Array;
-                    const mp4Blob = new Blob([new Uint8Array(data)], { type: "video/mp4" });
-
-                    // Download MP4
-                    const url = URL.createObjectURL(mp4Blob);
-                    const link = document.createElement('a');
+                // Use setTimeout to prevent UI freeze during blob creation
+                setTimeout(() => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
                     const timestamp = new Date().toISOString().slice(0, 10);
-                    link.download = `branded-video-${timestamp}.mp4`;
+
+                    const link = document.createElement('a');
                     link.href = url;
+                    link.download = `branded-video-${timestamp}.webm`;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
                     link.click();
 
-                    // Cleanup
                     setTimeout(() => {
+                        document.body.removeChild(link);
+                        document.body.removeChild(processedVideo);
                         URL.revokeObjectURL(url);
-                        document.body.removeChild(sourceVideo);
-                    }, 1000);
-
-                    // Clean up FFmpeg files
-                    try {
-                        await ffmpeg.deleteFile("input.webm");
-                        await ffmpeg.deleteFile("output.mp4");
-                    } catch (e) {
-                        console.log("FFmpeg cleanup:", e);
-                    }
-
-                    setExportProgress("");
-                } catch (error) {
-                    console.error("Conversion error:", error);
-                    setExportProgress("");
-                    throw new Error("Failed to convert video to MP4. Please try again.");
-                }
+                        URL.revokeObjectURL(videoUrl); // Clean up processed video URL
+                        setIsExporting(false);
+                        setExportProgress("");
+                    }, 100);
+                }, 50);
             };
 
-            // Error handling
-            mediaRecorder.onerror = (e) => {
-                console.error("MediaRecorder error:", e);
-                setExportProgress("");
-                throw new Error("Video recording failed. Please try again.");
-            };
+            // Start recording with timeslice to collect data in chunks (every 1 second)
+            setExportProgress("Adding caption overlay... 0%");
 
-            // Helper function to parse and render caption with highlighting
-            const renderCaptionOnCanvas = (ctx: CanvasRenderingContext2D, caption: string, x: number, y: number, fontSize: number, maxWidth: number) => {
-                ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'top';
+            // Start video playback FIRST to ensure audio stream is active
+            await processedVideo.play();
 
-                const parts = caption.split(/(\*[^*]+\*)/g);
-                let currentX = x;
-                let currentY = y;
-                const lineHeight = fontSize * 1.3;
+            // Small delay to ensure audio is flowing
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-                parts.forEach((part) => {
-                    if (!part) return;
+            // Now start recording (audio is already streaming from playing video)
+            mediaRecorder.start(1000); // Collect data every 1 second instead of all at once
 
-                    const isHighlighted = part.startsWith('*') && part.endsWith('*');
-                    const text = isHighlighted ? part.slice(1, -1) : part;
+            let lastUpdate = 0;
+            let frameCount = 0;
+            const maxFrames = Math.ceil(duration * 30) + 90; // 30 FPS + 3 second buffer
 
-                    // Set color
-                    ctx.fillStyle = isHighlighted ? '#3b5998' : '#ffffff';
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-                    ctx.shadowBlur = 8;
-                    ctx.shadowOffsetY = 2;
-
-                    // Simple word wrapping
-                    const words = text.split(' ');
-                    words.forEach((word, index) => {
-                        const wordWidth = ctx.measureText(word + ' ').width;
-
-                        if (currentX + wordWidth > x + maxWidth && currentX > x) {
-                            currentX = x;
-                            currentY += lineHeight;
-                        }
-
-                        ctx.fillText(word + (index < words.length - 1 ? ' ' : ''), currentX, currentY);
-                        currentX += wordWidth;
-                    });
-                });
-            };
-
-            // Start recording
-            setExportProgress("Recording video...");
-            mediaRecorder.start();
-
-            // Play the video and capture frames
-            sourceVideo.play();
-
-            const captureFrame = () => {
-                if (sourceVideo.paused || sourceVideo.ended) {
+            const draw = () => {
+                // Safety check: stop if we've drawn too many frames
+                if (frameCount > maxFrames) {
+                    console.warn('Maximum frames reached, stopping recording');
                     mediaRecorder.stop();
                     return;
                 }
 
-                // Calculate section heights
-                const captionHeight = videoHeight * 0.2;
-                const videoSectionHeight = videoHeight * 0.8;
-                const videoSectionY = captionHeight;
+                if (processedVideo.paused || processedVideo.ended) {
+                    mediaRecorder.stop();
+                    return;
+                }
 
-                // Clear canvas with dark background
-                ctx.fillStyle = '#040d1f';
-                ctx.fillRect(0, 0, videoWidth, videoHeight);
+                frameCount++;
+                const now = processedVideo.currentTime;
+                if (now - lastUpdate >= 1) {
+                    const pct = Math.min(99, Math.round((now / duration) * 100)); // Cap at 99%
+                    setExportProgress(`Adding caption... ${pct}% (${Math.ceil(duration - now)}s left)`);
+                    lastUpdate = now;
+                }
 
-                // Draw caption section background (top 20%)
-                const gradient = ctx.createLinearGradient(0, 0, 0, captionHeight);
-                gradient.addColorStop(0, 'rgba(4, 13, 31, 0.95)');
-                gradient.addColorStop(1, 'rgba(4, 13, 31, 0.85)');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, videoWidth, captionHeight);
+                // Draw processed video (already has watermark and audio from Cloudinary)
+                ctx.drawImage(processedVideo, 0, 0, videoWidth, videoHeight);
 
-                // Draw video section background (black)
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, videoSectionY, videoWidth, videoSectionHeight);
+                // Draw caption overlay on top
+                ctx.drawImage(captionCanvas, 0, 0);
 
-                // Draw source video (fills entire video section)
-                const scale = videoData.videoScale;
-                const scaledWidth = videoWidth * scale;
-                const scaledHeight = videoSectionHeight * scale;
-
-                const offsetX = (videoWidth - scaledWidth) * (videoData.videoPosition.x / 100);
-                const offsetY = (videoSectionHeight - scaledHeight) * (videoData.videoPosition.y / 100);
-
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(0, videoSectionY, videoWidth, videoSectionHeight);
-                ctx.clip();
-                ctx.drawImage(
-                    sourceVideo,
-                    offsetX,
-                    videoSectionY + offsetY,
-                    scaledWidth,
-                    scaledHeight
-                );
-                ctx.restore();
-
-                // Draw caption text - Bottom aligned in caption section
-                const captionFontSize = videoData.captionFontSize * (videoWidth / 432); // Scale font size
-                const captionPadding = videoWidth * 0.055; // 5.5% padding
-                const captionBottomPadding = videoWidth * 0.037; // Bottom padding to match preview
-
-                // Calculate caption Y position (bottom of caption section minus padding)
-                const captionY = captionHeight - captionBottomPadding - (captionFontSize * 1.3); // Approximate line height
-
-                renderCaptionOnCanvas(
-                    ctx,
-                    videoData.caption,
-                    captionPadding,
-                    captionY,
-                    captionFontSize,
-                    videoWidth - (captionPadding * 2)
-                );
-
-                // Draw website watermark - Top Right of Video Section
-                const watermarkFontSize = 32 * (videoWidth / 1080); // Scale watermark
-                ctx.font = `bold ${watermarkFontSize}px monospace`;
-                const watermarkText = 'www.1010web.studio';
-                const watermarkMetrics = ctx.measureText(watermarkText);
-                const watermarkWidth = watermarkMetrics.width;
-                const watermarkPadding = 30 * (videoWidth / 1080);
-                const watermarkX = videoWidth - watermarkPadding - watermarkWidth / 2;
-                const watermarkY = videoSectionY + watermarkPadding;
-
-                // Background for watermark
-                ctx.fillStyle = 'rgba(4, 13, 31, 0.6)';
-                ctx.beginPath();
-                ctx.roundRect(
-                    watermarkX - watermarkWidth / 2 - 20,
-                    watermarkY - 15,
-                    watermarkWidth + 40,
-                    45,
-                    25
-                );
-                ctx.fill();
-
-                // Watermark text
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                ctx.textAlign = 'center';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-                ctx.shadowBlur = 8;
-                ctx.shadowOffsetY = 2;
-                ctx.fillText(watermarkText, watermarkX, watermarkY + 5);
-
-                requestAnimationFrame(captureFrame);
+                requestAnimationFrame(draw);
             };
 
-            // Start capturing
-            requestAnimationFrame(captureFrame);
+            draw();
 
         } catch (error) {
-            console.error("Video export failed:", error);
+            console.error("Export failed:", error);
+            setIsExporting(false);
             setExportProgress("");
-            alert("Failed to export video. Please try again.");
-            throw error;
+            alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}. Check console for details.`);
         }
     };
 
@@ -561,7 +566,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 ) : (
                     <>
                         <Download size={20} />
-                        {templateType === "video" ? "Export Video (MP4)" : "Export as PNG"}
+                        {templateType === "video" ? "Export Video" : "Export as PNG"}
                     </>
                 )}
             </span>

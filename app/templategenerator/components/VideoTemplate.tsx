@@ -11,9 +11,23 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        // Reset video when source changes
+        // Reset video when source changes - Mobile Safari specific handling
         if (videoRef.current && data.video) {
-            videoRef.current.load();
+            const video = videoRef.current;
+
+            // Force reload
+            video.load();
+
+            // Attempt to play (will auto-pause if muted is supported)
+            setTimeout(() => {
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        // Auto-play was prevented, that's okay for preview
+                        console.log("Video autoplay prevented, playing on interaction");
+                    });
+                }
+            }, 100);
         }
     }, [data.video]);
 
@@ -76,6 +90,16 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                             muted
                             playsInline
                             autoPlay
+                            preload="metadata"
+                            webkit-playsinline="true"
+                            x-webkit-airplay="allow"
+                            onError={(e) => {
+                                console.error("Video load error:", e);
+                                // Retry loading
+                                if (videoRef.current) {
+                                    videoRef.current.load();
+                                }
+                            }}
                             style={{
                                 objectPosition: `${data.videoPosition.x}% ${data.videoPosition.y}%`,
                                 transform: `scale(${data.videoScale})`,

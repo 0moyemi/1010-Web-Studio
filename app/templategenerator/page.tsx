@@ -111,7 +111,10 @@ export default function TemplateGenerator() {
             localStorage.setItem('templateType', templateType);
             localStorage.setItem('quoteData', JSON.stringify(quoteData));
             localStorage.setItem('carouselData', JSON.stringify(carouselData));
-            localStorage.setItem('videoData', JSON.stringify(videoData));
+            // Don't save video data to localStorage (too large, causes quota errors)
+            // Only save non-video fields
+            const { video, ...videoDataWithoutVideo } = videoData;
+            localStorage.setItem('videoData', JSON.stringify(videoDataWithoutVideo));
         } catch (error) {
             console.error('Error saving data:', error);
         }
