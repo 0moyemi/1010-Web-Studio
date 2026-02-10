@@ -39,6 +39,11 @@ body {
   min-height: 100vh;
 }
 
+/* Hide page content initially to prevent flash before FirstLoadAnimation */
+#page-content {
+  display: none;
+}
+
 body::before {
   content: '';
   position: fixed;
