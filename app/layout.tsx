@@ -30,18 +30,18 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://1010web.studio/Primary Logo.svg",
-        width: 1200,
-        height: 630,
+        url: "https://1010web.studio/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
         alt: "1010 Web Studio - Sales Systems for Nigerian Small Businesses",
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Sales Systems for Small Businesses in Nigeria | 1010 Web Studio",
     description: "We help Nigerian small businesses sell online without stress. Simple product catalogs and sales systems that work.",
-    images: ["https://1010web.studio/Primary Logo.svg"],
+    images: ["https://1010web.studio/android-chrome-512x512.png"],
   },
   icons: {
     icon: [
