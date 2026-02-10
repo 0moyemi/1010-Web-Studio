@@ -38,7 +38,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
         <div className="w-full h-full relative overflow-hidden bg-[#040d1f]">
             {/* Caption Section - Top 20% */}
             <div
-                className="absolute top-0 left-0 right-0 z-20 flex items-center justify-start px-6"
+                className="absolute top-0 left-0 right-0 z-20 flex items-end justify-start px-6 pb-4"
                 style={{
                     height: "20%",
                     background: "linear-gradient(to bottom, rgba(4, 13, 31, 0.95) 0%, rgba(4, 13, 31, 0.85) 100%)",
@@ -70,6 +70,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                         {/* Video fills entire section */}
                         <video
                             ref={videoRef}
+                            src={data.video}
                             className="w-full h-full object-cover"
                             loop
                             muted
@@ -79,9 +80,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                                 objectPosition: `${data.videoPosition.x}% ${data.videoPosition.y}%`,
                                 transform: `scale(${data.videoScale})`,
                             }}
-                        >
-                            <source src={data.video} />
-                        </video>
+                        />
 
                         {/* Website Watermark - Top Right of Video Section */}
                         <div className="absolute top-3 right-3 z-30">

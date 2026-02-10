@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { TemplateType, CarouselData, VideoData } from "../page";
 import JSZip from "jszip";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 interface ExportButtonProps {
     templateType: TemplateType;
@@ -14,6 +16,38 @@ interface ExportButtonProps {
 
 export default function ExportButton({ templateType, carouselData, setCarouselData, videoData }: ExportButtonProps) {
     const [isExporting, setIsExporting] = useState(false);
+    const [exportProgress, setExportProgress] = useState("");
+    const ffmpegRef = useRef<FFmpeg | null>(null);
+    const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
+
+    // Load FFmpeg
+    const loadFFmpeg = async () => {
+        if (ffmpegLoaded && ffmpegRef.current) {
+            return ffmpegRef.current;
+        }
+
+        setExportProgress("Loading video converter...");
+        const ffmpeg = new FFmpeg();
+
+        ffmpeg.on("log", ({ message }) => {
+            console.log(message);
+        });
+
+        ffmpeg.on("progress", ({ progress }) => {
+            const percentage = Math.round(progress * 100);
+            setExportProgress(`Converting to MP4: ${percentage}%`);
+        });
+
+        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+        await ffmpeg.load({
+            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+        });
+
+        ffmpegRef.current = ffmpeg;
+        setFfmpegLoaded(true);
+        return ffmpeg;
+    };
 
     const handleExport = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -189,17 +223,46 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
         }
 
         try {
+            // Check MediaRecorder support
+            if (!window.MediaRecorder) {
+                throw new Error("Video recording is not supported in your browser. Please try Chrome, Edge, or Firefox.");
+            }
+
+            // Check codec support - try multiple options
+            let mimeType = '';
+            const codecs = [
+                'video/webm;codecs=vp9,opus',
+                'video/webm;codecs=vp8,opus',
+                'video/webm;codecs=vp9',
+                'video/webm;codecs=vp8',
+                'video/webm'
+            ];
+
+            for (const codec of codecs) {
+                if (MediaRecorder.isTypeSupported(codec)) {
+                    mimeType = codec;
+                    break;
+                }
+            }
+
+            if (!mimeType) {
+                throw new Error("No supported video codec found. Please try a different browser.");
+            }
+
             // Create a hidden video element to get the source video
             const sourceVideo = document.createElement('video');
             sourceVideo.src = videoData.video;
             sourceVideo.muted = true;
+            sourceVideo.crossOrigin = "anonymous";
             sourceVideo.style.display = 'none';
             document.body.appendChild(sourceVideo);
 
             // Wait for video to load
             await new Promise<void>((resolve, reject) => {
                 sourceVideo.onloadedmetadata = () => resolve();
-                sourceVideo.onerror = () => reject(new Error("Failed to load video"));
+                sourceVideo.onerror = (e) => reject(new Error("Failed to load video. Make sure the file is a valid video format."));
+                // Timeout after 10 seconds
+                setTimeout(() => reject(new Error("Video loading timed out")), 10000);
             });
 
             const duration = sourceVideo.duration;
@@ -233,10 +296,10 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 throw new Error("Failed to get canvas context");
             }
 
-            // Setup MediaRecorder with higher quality settings
+            // Setup MediaRecorder with detected codec
             const stream = recordCanvas.captureStream(60); // 60 FPS for high quality
             const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'video/webm;codecs=vp9',
+                mimeType: mimeType,
                 videoBitsPerSecond: 20000000, // 20 Mbps for high quality
             });
 
@@ -247,22 +310,71 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 }
             };
 
-            // When recording is done, download the video
+            // When recording is done, convert to MP4 and download
             mediaRecorder.onstop = async () => {
-                const blob = new Blob(chunks, { type: 'video/webm' });
+                try {
+                    const webmBlob = new Blob(chunks, { type: mimeType });
 
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                const timestamp = new Date().toISOString().slice(0, 10);
-                link.download = `branded-video-${timestamp}.webm`;
-                link.href = url;
-                link.click();
+                    setExportProgress("Recording complete. Converting to MP4...");
 
-                // Cleanup
-                setTimeout(() => {
-                    URL.revokeObjectURL(url);
-                    document.body.removeChild(sourceVideo);
-                }, 1000);
+                    // Load FFmpeg
+                    const ffmpeg = await loadFFmpeg();
+
+                    // Write WebM to FFmpeg virtual file system
+                    await ffmpeg.writeFile("input.webm", await fetchFile(webmBlob));
+
+                    // Convert WebM to MP4
+                    setExportProgress("Converting to MP4...");
+                    await ffmpeg.exec([
+                        "-i", "input.webm",
+                        "-c:v", "libx264",
+                        "-preset", "fast",
+                        "-crf", "22",
+                        "-c:a", "aac",
+                        "-b:a", "192k",
+                        "-movflags", "+faststart",
+                        "output.mp4"
+                    ]);
+
+                    // Read the MP4 file
+                    const data = await ffmpeg.readFile("output.mp4") as Uint8Array;
+                    const mp4Blob = new Blob([new Uint8Array(data)], { type: "video/mp4" });
+
+                    // Download MP4
+                    const url = URL.createObjectURL(mp4Blob);
+                    const link = document.createElement('a');
+                    const timestamp = new Date().toISOString().slice(0, 10);
+                    link.download = `branded-video-${timestamp}.mp4`;
+                    link.href = url;
+                    link.click();
+
+                    // Cleanup
+                    setTimeout(() => {
+                        URL.revokeObjectURL(url);
+                        document.body.removeChild(sourceVideo);
+                    }, 1000);
+
+                    // Clean up FFmpeg files
+                    try {
+                        await ffmpeg.deleteFile("input.webm");
+                        await ffmpeg.deleteFile("output.mp4");
+                    } catch (e) {
+                        console.log("FFmpeg cleanup:", e);
+                    }
+
+                    setExportProgress("");
+                } catch (error) {
+                    console.error("Conversion error:", error);
+                    setExportProgress("");
+                    throw new Error("Failed to convert video to MP4. Please try again.");
+                }
+            };
+
+            // Error handling
+            mediaRecorder.onerror = (e) => {
+                console.error("MediaRecorder error:", e);
+                setExportProgress("");
+                throw new Error("Video recording failed. Please try again.");
             };
 
             // Helper function to parse and render caption with highlighting
@@ -305,6 +417,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             };
 
             // Start recording
+            setExportProgress("Recording video...");
             mediaRecorder.start();
 
             // Play the video and capture frames
@@ -357,14 +470,19 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 );
                 ctx.restore();
 
-                // Draw caption text
+                // Draw caption text - Bottom aligned in caption section
                 const captionFontSize = videoData.captionFontSize * (videoWidth / 432); // Scale font size
                 const captionPadding = videoWidth * 0.055; // 5.5% padding
+                const captionBottomPadding = videoWidth * 0.037; // Bottom padding to match preview
+
+                // Calculate caption Y position (bottom of caption section minus padding)
+                const captionY = captionHeight - captionBottomPadding - (captionFontSize * 1.3); // Approximate line height
+
                 renderCaptionOnCanvas(
                     ctx,
                     videoData.caption,
                     captionPadding,
-                    captionPadding * 1.2,
+                    captionY,
                     captionFontSize,
                     videoWidth - (captionPadding * 2)
                 );
@@ -407,6 +525,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
 
         } catch (error) {
             console.error("Video export failed:", error);
+            setExportProgress("");
             alert("Failed to export video. Please try again.");
             throw error;
         }
@@ -437,12 +556,12 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 {isExporting ? (
                     <>
                         <Loader2 size={20} className="animate-spin" />
-                        {templateType === "video" ? "Processing Video..." : "Exporting..."}
+                        {exportProgress || (templateType === "video" ? "Processing Video..." : "Exporting...")}
                     </>
                 ) : (
                     <>
                         <Download size={20} />
-                        {templateType === "video" ? "Export Video" : "Export as PNG"}
+                        {templateType === "video" ? "Export Video (MP4)" : "Export as PNG"}
                     </>
                 )}
             </span>
