@@ -36,7 +36,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
 
     return (
         <div className="w-full h-full relative overflow-hidden bg-[#040d1f]">
-            {/* Caption Section - Top 1/5 */}
+            {/* Caption Section - Top 20% */}
             <div
                 className="absolute top-0 left-0 right-0 z-20 flex items-center justify-start px-6"
                 style={{
@@ -57,22 +57,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                 </h2>
             </div>
 
-            {/* Website Watermark - Bottom Center */}
-            <div className="absolute bottom-3 left-0 right-0 z-30 flex items-center justify-center">
-                <span
-                    className="text-white/90 font-mono font-semibold tracking-wide px-3 py-1.5 rounded-full"
-                    style={{
-                        fontSize: "11px",
-                        textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
-                        background: "rgba(4, 13, 31, 0.6)",
-                        backdropFilter: "blur(8px)",
-                    }}
-                >
-                    www.1010web.studio
-                </span>
-            </div>
-
-            {/* Video Section - Bottom 4/5 */}
+            {/* Video Section - Bottom 80% */}
             <div
                 className="absolute left-0 right-0 bottom-0 overflow-hidden"
                 style={{
@@ -81,35 +66,36 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                 }}
             >
                 {data.video ? (
-                    <div className="relative w-full h-full flex items-center justify-center bg-black">
-                        {/* Video container with aspect ratio */}
-                        <div
-                            className="relative overflow-hidden"
+                    <div className="relative w-full h-full bg-black">
+                        {/* Video fills entire section */}
+                        <video
+                            ref={videoRef}
+                            className="w-full h-full object-cover"
+                            loop
+                            muted
+                            playsInline
+                            autoPlay
                             style={{
-                                aspectRatio:
-                                    data.videoAspectRatio === "9:16"
-                                        ? "9/16"
-                                        : data.videoAspectRatio === "4:5"
-                                            ? "4/5"
-                                            : "1/1",
-                                height: "100%",
-                                maxWidth: "100%",
+                                objectPosition: `${data.videoPosition.x}% ${data.videoPosition.y}%`,
+                                transform: `scale(${data.videoScale})`,
                             }}
                         >
-                            <video
-                                ref={videoRef}
-                                className="absolute inset-0 w-full h-full object-cover"
-                                loop
-                                muted
-                                playsInline
-                                autoPlay
+                            <source src={data.video} />
+                        </video>
+
+                        {/* Website Watermark - Top Right of Video Section */}
+                        <div className="absolute top-3 right-3 z-30">
+                            <span
+                                className="text-white/90 font-mono font-semibold tracking-wide px-3 py-1.5 rounded-full block"
                                 style={{
-                                    objectPosition: `${data.videoPosition.x}% ${data.videoPosition.y}%`,
-                                    transform: `scale(${data.videoScale})`,
+                                    fontSize: "11px",
+                                    textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
+                                    background: "rgba(4, 13, 31, 0.6)",
+                                    backdropFilter: "blur(8px)",
                                 }}
                             >
-                                <source src={data.video} />
-                            </video>
+                                www.1010web.studio
+                            </span>
                         </div>
                     </div>
                 ) : (

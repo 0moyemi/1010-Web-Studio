@@ -21,13 +21,15 @@ export interface QuoteData {
 export interface CarouselData {
     hook: string;
     tips: Array<{ title: string; description: string }>;
-    cta: string;
+    ctaNote: string;
+    ctaCall: string;
     currentSlide: number;
     viewAllSlides: boolean;
     hookFontSize: number;
     tipTitleFontSize: number;
     tipDescriptionFontSize: number;
-    ctaFontSize: number;
+    ctaNoteFontSize: number;
+    ctaCallFontSize: number;
 }
 
 export interface VideoData {
@@ -66,13 +68,15 @@ export default function TemplateGenerator() {
                 description: "Respond quickly and never miss an opportunity",
             },
         ],
-        cta: "Follow @1010webstudio for more tips",
+        ctaNote: "Ready to grow your business?",
+        ctaCall: "Follow @1010webstudio for more tips",
         currentSlide: 0,
         viewAllSlides: false,
         hookFontSize: 30,
         tipTitleFontSize: 36,
         tipDescriptionFontSize: 28,
-        ctaFontSize: 30,
+        ctaNoteFontSize: 24,
+        ctaCallFontSize: 30,
     });
 
     const [videoData, setVideoData] = useState<VideoData>({

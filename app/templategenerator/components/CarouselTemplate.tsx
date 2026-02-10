@@ -50,7 +50,7 @@ export default function CarouselTemplate({ data }: CarouselTemplateProps) {
                 {currentSlide === 1 && <TipSlide tip={data.tips[0]} number={1} titleFontSize={data.tipTitleFontSize} descriptionFontSize={data.tipDescriptionFontSize} />}
                 {currentSlide === 2 && <TipSlide tip={data.tips[1]} number={2} titleFontSize={data.tipTitleFontSize} descriptionFontSize={data.tipDescriptionFontSize} />}
                 {currentSlide === 3 && <TipSlide tip={data.tips[2]} number={3} titleFontSize={data.tipTitleFontSize} descriptionFontSize={data.tipDescriptionFontSize} />}
-                {currentSlide === 4 && <CTASlide cta={data.cta} fontSize={data.ctaFontSize} />}
+                {currentSlide === 4 && <CTASlide note={data.ctaNote} call={data.ctaCall} noteFontSize={data.ctaNoteFontSize} callFontSize={data.ctaCallFontSize} />}
 
                 {/* Logo - Top Left (hide on last slide) */}
                 {currentSlide !== 4 && (
@@ -166,7 +166,7 @@ function TipSlide({
 }
 
 // CTA Slide (Slide 5)
-function CTASlide({ cta, fontSize }: { cta: string; fontSize: number }) {
+function CTASlide({ note, call, noteFontSize, callFontSize }: { note: string; call: string; noteFontSize: number; callFontSize: number }) {
     return (
         <div className="flex-1 flex flex-col items-center justify-center text-center gap-8">
             {/* Logo - Same as footer */}
@@ -176,16 +176,30 @@ function CTASlide({ cta, fontSize }: { cta: string; fontSize: number }) {
                 className="w-24 h-auto object-contain"
             />
 
+            {/* Note Text */}
+            <p
+                className="font-semibold text-[var(--text-primary)]"
+                style={{
+                    fontSize: `${noteFontSize}px`,
+                    whiteSpace: 'pre-line',
+                    textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                    lineHeight: '1.4'
+                }}
+            >
+                {note}
+            </p>
+
             {/* CTA Text */}
             <p
                 className="font-bold text-[var(--text-primary)]"
                 style={{
-                    fontSize: `${fontSize}px`,
+                    fontSize: `${callFontSize}px`,
                     whiteSpace: 'pre-line',
-                    textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)"
+                    textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                    lineHeight: '1.4'
                 }}
             >
-                {cta}
+                {call}
             </p>
         </div>
     );

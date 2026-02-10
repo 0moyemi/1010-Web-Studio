@@ -366,21 +366,21 @@ function CarouselControls({
                 ))}
             </div>
 
-            {/* CTA */}
+            {/* CTA Note */}
             <div>
                 <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
-                    Call to Action (Slide 5)
+                    Short Note (Slide 5)
                 </label>
-                <input
-                    type="text"
-                    value={carouselData.cta}
+                <textarea
+                    value={carouselData.ctaNote}
                     onChange={(e) =>
-                        setCarouselData({ ...carouselData, cta: e.target.value })
+                        setCarouselData({ ...carouselData, ctaNote: e.target.value })
                     }
-                    placeholder="Press Enter for line breaks"
+                    placeholder="Enter a short note... (Press Enter for line breaks)"
+                    rows={2}
                     className="w-full px-4 py-3 bg-[var(--card-background)] border border-[var(--border-color)] 
                    rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)]
-                   focus:outline-none focus:ring-2 focus:ring-[var(--highlight)]"
+                   focus:outline-none focus:ring-2 focus:ring-[var(--highlight)] resize-none"
                 />
                 <div className="mt-2">
                     <label className="block text-xs text-[var(--text-muted)] mb-1">
@@ -390,11 +390,51 @@ function CarouselControls({
                         type="range"
                         min="14"
                         max="36"
-                        value={carouselData.ctaFontSize}
+                        value={carouselData.ctaNoteFontSize}
                         onChange={(e) =>
                             setCarouselData({
                                 ...carouselData,
-                                ctaFontSize: parseInt(e.target.value),
+                                ctaNoteFontSize: parseInt(e.target.value),
+                            })
+                        }
+                        className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
+                        <span>Small</span>
+                        <span>Large</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* CTA Call to Action */}
+            <div>
+                <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
+                    Call to Action (Slide 5)
+                </label>
+                <textarea
+                    value={carouselData.ctaCall}
+                    onChange={(e) =>
+                        setCarouselData({ ...carouselData, ctaCall: e.target.value })
+                    }
+                    placeholder="Enter your call to action... (Press Enter for line breaks)"
+                    rows={2}
+                    className="w-full px-4 py-3 bg-[var(--card-background)] border border-[var(--border-color)] 
+                   rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)]
+                   focus:outline-none focus:ring-2 focus:ring-[var(--highlight)] resize-none"
+                />
+                <div className="mt-2">
+                    <label className="block text-xs text-[var(--text-muted)] mb-1">
+                        Font Size
+                    </label>
+                    <input
+                        type="range"
+                        min="14"
+                        max="36"
+                        value={carouselData.ctaCallFontSize}
+                        onChange={(e) =>
+                            setCarouselData({
+                                ...carouselData,
+                                ctaCallFontSize: parseInt(e.target.value),
                             })
                         }
                         className="w-full"
@@ -480,8 +520,8 @@ function VideoControls({
                                     })
                                 }
                                 className={`px-3 py-3 rounded-lg text-xs font-semibold transition-all ${videoData.videoAspectRatio === ratio.value
-                                        ? "bg-[var(--highlight)] text-white"
-                                        : "bg-[var(--card-background)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)]"
+                                    ? "bg-[var(--highlight)] text-white"
+                                    : "bg-[var(--card-background)] text-[var(--text-secondary)] hover:bg-[var(--glass-border)]"
                                     }`}
                             >
                                 {ratio.label}

@@ -50,6 +50,36 @@ export default function TemplateCanvas({
         );
     }
 
+    // Calculate dynamic aspect ratio for video template
+    const getVideoAspectRatio = () => {
+        if (templateType !== "video") return "4/5";
+
+        switch (videoData.videoAspectRatio) {
+            case "9:16":
+                return "9/16";
+            case "4:5":
+                return "4/5";
+            case "1:1":
+                return "1/1";
+            default:
+                return "9/16";
+        }
+    };
+
+    // Calculate dimensions label for video
+    const getVideoDimensionsLabel = () => {
+        switch (videoData.videoAspectRatio) {
+            case "9:16":
+                return "9:16 • 1080×1920px";
+            case "4:5":
+                return "4:5 • 1536×1920px";
+            case "1:1":
+                return "1:1 • 1920×1920px";
+            default:
+                return "9:16 • 1080×1920px";
+        }
+    };
+
     return (
         <div className="relative w-full max-w-md mx-auto">
             {/* Canvas Container - Dynamic aspect ratio based on template type */}
@@ -57,8 +87,8 @@ export default function TemplateCanvas({
                 id="template-canvas"
                 className="relative bg-[var(--background)] overflow-hidden shadow-2xl w-full rounded-lg"
                 style={{
-                    aspectRatio: templateType === "video" ? "9/16" : "4/5",
-                    maxWidth: "432px",
+                    aspectRatio: templateType === "video" ? getVideoAspectRatio() : "4/5",
+                    maxWidth: templateType === "video" && videoData.videoAspectRatio === "1:1" ? "540px" : "432px",
                 }}
             >
                 {templateType === "quote" ? (
@@ -72,7 +102,7 @@ export default function TemplateCanvas({
 
             {/* Aspect Ratio Label */}
             <div className="absolute -top-7 sm:-top-8 right-0 text-[10px] sm:text-xs text-[var(--text-muted)] font-mono">
-                {templateType === "video" ? "9:16 • 1080×1920px (Story)" : "4:5 • 1080×1350px"}
+                {templateType === "video" ? getVideoDimensionsLabel() : "4:5 • 1080×1350px"}
             </div>
         </div>
     );

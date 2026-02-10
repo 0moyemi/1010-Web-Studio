@@ -203,8 +203,25 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             });
 
             const duration = sourceVideo.duration;
-            const videoWidth = 1080;
+
+            // Calculate canvas dimensions based on video aspect ratio
+            // Height is always 1920px (the "16" part), width adapts
             const videoHeight = 1920;
+            let videoWidth: number;
+
+            switch (videoData.videoAspectRatio) {
+                case "9:16":
+                    videoWidth = 1080;  // 9/16 * 1920
+                    break;
+                case "4:5":
+                    videoWidth = 1536;  // 4/5 * 1920
+                    break;
+                case "1:1":
+                    videoWidth = 1920;  // 1/1 * 1920
+                    break;
+                default:
+                    videoWidth = 1080;
+            }
 
             // Create canvas for recording
             const recordCanvas = document.createElement('canvas');
@@ -216,11 +233,11 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 throw new Error("Failed to get canvas context");
             }
 
-            // Setup MediaRecorder
-            const stream = recordCanvas.captureStream(30); // 30 FPS
+            // Setup MediaRecorder with higher quality settings
+            const stream = recordCanvas.captureStream(60); // 60 FPS for high quality
             const mediaRecorder = new MediaRecorder(stream, {
                 mimeType: 'video/webm;codecs=vp9',
-                videoBitsPerSecond: 10000000, // 10 Mbps for high quality
+                videoBitsPerSecond: 20000000, // 20 Mbps for high quality
             });
 
             const chunks: Blob[] = [];
@@ -234,8 +251,6 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             mediaRecorder.onstop = async () => {
                 const blob = new Blob(chunks, { type: 'video/webm' });
 
-                // Option to re-encode to MP4 using FFmpeg
-                // For now, export as WebM (universally supported)
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 const timestamp = new Date().toISOString().slice(0, 10);
@@ -301,51 +316,41 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     return;
                 }
 
-                // Calculate dimensions for video section (80% of height)
+                // Calculate section heights
+                const captionHeight = videoHeight * 0.2;
                 const videoSectionHeight = videoHeight * 0.8;
-                const videoSectionY = videoHeight * 0.2;
+                const videoSectionY = captionHeight;
 
-                // Calculate video dimensions based on aspect ratio
-                let drawWidth = videoWidth;
-                let drawHeight = videoSectionHeight;
-
-                if (videoData.videoAspectRatio === "9:16") {
-                    drawWidth = videoSectionHeight * (9 / 16);
-                } else if (videoData.videoAspectRatio === "4:5") {
-                    drawWidth = videoSectionHeight * (4 / 5);
-                } else if (videoData.videoAspectRatio === "1:1") {
-                    drawWidth = videoSectionHeight;
-                }
-
-                const drawX = (videoWidth - drawWidth) / 2;
-
-                // Clear canvas
+                // Clear canvas with dark background
                 ctx.fillStyle = '#040d1f';
                 ctx.fillRect(0, 0, videoWidth, videoHeight);
 
                 // Draw caption section background (top 20%)
-                ctx.fillStyle = 'rgba(4, 13, 31, 0.95)';
-                ctx.fillRect(0, 0, videoWidth, videoHeight * 0.2);
+                const gradient = ctx.createLinearGradient(0, 0, 0, captionHeight);
+                gradient.addColorStop(0, 'rgba(4, 13, 31, 0.95)');
+                gradient.addColorStop(1, 'rgba(4, 13, 31, 0.85)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, videoWidth, captionHeight);
 
-                // Draw video section background
+                // Draw video section background (black)
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(0, videoSectionY, videoWidth, videoSectionHeight);
 
-                // Draw source video with positioning and scale
+                // Draw source video (fills entire video section)
                 const scale = videoData.videoScale;
-                const scaledWidth = drawWidth * scale;
-                const scaledHeight = drawHeight * scale;
+                const scaledWidth = videoWidth * scale;
+                const scaledHeight = videoSectionHeight * scale;
 
-                const offsetX = (drawWidth - scaledWidth) * (videoData.videoPosition.x / 100);
-                const offsetY = (drawHeight - scaledHeight) * (videoData.videoPosition.y / 100);
+                const offsetX = (videoWidth - scaledWidth) * (videoData.videoPosition.x / 100);
+                const offsetY = (videoSectionHeight - scaledHeight) * (videoData.videoPosition.y / 100);
 
                 ctx.save();
                 ctx.beginPath();
-                ctx.rect(drawX, videoSectionY, drawWidth, drawHeight);
+                ctx.rect(0, videoSectionY, videoWidth, videoSectionHeight);
                 ctx.clip();
                 ctx.drawImage(
                     sourceVideo,
-                    drawX + offsetX,
+                    offsetX,
                     videoSectionY + offsetY,
                     scaledWidth,
                     scaledHeight
@@ -353,28 +358,45 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 ctx.restore();
 
                 // Draw caption text
-                renderCaptionOnCanvas(ctx, videoData.caption, 50, 50, videoData.captionFontSize, videoWidth - 100);
+                const captionFontSize = videoData.captionFontSize * (videoWidth / 432); // Scale font size
+                const captionPadding = videoWidth * 0.055; // 5.5% padding
+                renderCaptionOnCanvas(
+                    ctx,
+                    videoData.caption,
+                    captionPadding,
+                    captionPadding * 1.2,
+                    captionFontSize,
+                    videoWidth - (captionPadding * 2)
+                );
 
-                // Draw website watermark
-                ctx.font = 'bold 32px monospace';
+                // Draw website watermark - Top Right of Video Section
+                const watermarkFontSize = 32 * (videoWidth / 1080); // Scale watermark
+                ctx.font = `bold ${watermarkFontSize}px monospace`;
+                const watermarkText = 'www.1010web.studio';
+                const watermarkMetrics = ctx.measureText(watermarkText);
+                const watermarkWidth = watermarkMetrics.width;
+                const watermarkPadding = 30 * (videoWidth / 1080);
+                const watermarkX = videoWidth - watermarkPadding - watermarkWidth / 2;
+                const watermarkY = videoSectionY + watermarkPadding;
+
+                // Background for watermark
+                ctx.fillStyle = 'rgba(4, 13, 31, 0.6)';
+                ctx.beginPath();
+                ctx.roundRect(
+                    watermarkX - watermarkWidth / 2 - 20,
+                    watermarkY - 15,
+                    watermarkWidth + 40,
+                    45,
+                    25
+                );
+                ctx.fill();
+
+                // Watermark text
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
                 ctx.textAlign = 'center';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
                 ctx.shadowBlur = 8;
                 ctx.shadowOffsetY = 2;
-
-                // Background for watermark
-                const watermarkText = 'www.1010web.studio';
-                const watermarkWidth = ctx.measureText(watermarkText).width;
-                const watermarkX = videoWidth / 2;
-                const watermarkY = videoHeight - 60;
-
-                ctx.fillStyle = 'rgba(4, 13, 31, 0.6)';
-                ctx.beginPath();
-                ctx.roundRect(watermarkX - watermarkWidth / 2 - 20, watermarkY - 15, watermarkWidth + 40, 45, 25);
-                ctx.fill();
-
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
                 ctx.fillText(watermarkText, watermarkX, watermarkY + 5);
 
                 requestAnimationFrame(captureFrame);
@@ -420,7 +442,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 ) : (
                     <>
                         <Download size={20} />
-                        {templateType === "video" ? "Export Video (MP4)" : "Export as PNG"}
+                        {templateType === "video" ? "Export Video" : "Export as PNG"}
                     </>
                 )}
             </span>
