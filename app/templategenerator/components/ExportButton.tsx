@@ -324,31 +324,35 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 videoCaptureStream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
             }
 
-            // Calculate dimensions
-            let videoWidth: number;
-            const videoHeight = 1920;
+            // Calculate canvas dimensions based on selected aspect ratio
+            let canvasWidth: number;
+            const canvasHeight = 1920;
 
             switch (videoData.videoAspectRatio) {
-                case "9:16": videoWidth = 1080; break;
-                case "4:5": videoWidth = 1536; break;
-                case "1:1": videoWidth = 1920; break;
-                default: videoWidth = 1080;
+                case "9:16": canvasWidth = 1080; break;
+                case "4:5": canvasWidth = 1536; break;
+                case "1:1": canvasWidth = 1920; break;
+                default: canvasWidth = 1080;
             }
 
-            const captionHeight = videoHeight * 0.2;
-            const captionFontSize = videoData.captionFontSize * (videoWidth / 432);
-            const captionPadding = videoWidth * 0.055;
-            const captionBottomPadding = videoWidth * 0.037;
+            const captionHeight = canvasHeight * 0.2;
+            const videoSectionHeight = canvasHeight * 0.8;
+            const captionFontSize = videoData.captionFontSize * (canvasWidth / 432);
+            const captionPadding = canvasWidth * 0.055;
+            const captionBottomPadding = canvasWidth * 0.037;
 
-            // Step 3: Create canvas for compositing (processed video + caption)
+            console.log('Canvas dimensions:', canvasWidth, 'x', canvasHeight);
+            console.log('Original video dimensions:', processedVideo.videoWidth, 'x', processedVideo.videoHeight);
+
+            // Step 3: Create canvas with selected aspect ratio
             const canvas = document.createElement('canvas');
-            canvas.width = videoWidth;
-            canvas.height = videoHeight;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
             const ctx = canvas.getContext('2d', { alpha: false })!;
 
             // Pre-render caption overlay with text highlighting
             const captionCanvas = document.createElement('canvas');
-            captionCanvas.width = videoWidth;
+            captionCanvas.width = canvasWidth;
             captionCanvas.height = captionHeight;
             const cCtx = captionCanvas.getContext('2d')!;
 
@@ -357,7 +361,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             gradient.addColorStop(0, 'rgba(4, 13, 31, 0.95)');
             gradient.addColorStop(1, 'rgba(4, 13, 31, 0.85)');
             cCtx.fillStyle = gradient;
-            cCtx.fillRect(0, 0, videoWidth, captionHeight);
+            cCtx.fillRect(0, 0, canvasWidth, captionHeight);
 
             // Parse caption text with highlighting (*text* = highlighted)
             cCtx.font = `bold ${captionFontSize}px Arial, sans-serif`;
@@ -380,7 +384,6 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
 
             // Word wrap with color support
             let line: { text: string, isHighlight: boolean }[] = [];
-            let y = captionHeight - captionBottomPadding;
             const lineHeight = captionFontSize * 1.3;
             const lines: { text: string, isHighlight: boolean }[][] = [];
 
@@ -389,7 +392,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                 const testText = testLine.map(w => w.text).join(' ');
                 const metrics = cCtx.measureText(testText);
 
-                if (metrics.width > videoWidth - (captionPadding * 2) && line.length > 0) {
+                if (metrics.width > canvasWidth - (captionPadding * 2) && line.length > 0) {
                     lines.push(line);
                     line = [wordObj];
                 } else {
@@ -398,7 +401,8 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             });
             if (line.length > 0) lines.push(line);
 
-            // Draw lines from bottom up with highlighting
+            // Draw lines from bottom up with highlighting (original approach)
+            let y = captionHeight - captionBottomPadding;
             lines.reverse().forEach((lineWords, lineIndex) => {
                 let x = captionPadding;
                 const lineY = y - (lineIndex * lineHeight);
@@ -492,12 +496,34 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             // Now start recording (audio is already streaming from playing video)
             mediaRecorder.start(1000); // Collect data every 1 second instead of all at once
 
+            // Calculate object-contain dimensions for video within video section
+            const videoAspectRatio = processedVideo.videoWidth / processedVideo.videoHeight;
+            const videoSectionAspectRatio = canvasWidth / videoSectionHeight;
+
+            let drawWidth: number, drawHeight: number, drawX: number, drawY: number;
+
+            if (videoAspectRatio > videoSectionAspectRatio) {
+                // Video is wider - fit to width
+                drawWidth = canvasWidth;
+                drawHeight = canvasWidth / videoAspectRatio;
+                drawX = 0;
+                drawY = captionHeight; // Start right after caption, no gap
+            } else {
+                // Video is taller - fit to height
+                drawHeight = videoSectionHeight;
+                drawWidth = videoSectionHeight * videoAspectRatio;
+                drawX = (canvasWidth - drawWidth) / 2;
+                drawY = captionHeight; // Start right after caption, no gap
+            }
+
+            console.log('Video will be drawn at:', drawX, drawY, drawWidth, drawHeight);
+
             let lastUpdate = 0;
             let frameCount = 0;
-            const maxFrames = Math.ceil(duration * 30) + 90; // 30 FPS + 3 second buffer
+            const maxFrames = Math.ceil(duration * 60) + 600; // 60 FPS + 10 second buffer (requestAnimationFrame runs at 60fps)
 
             const draw = () => {
-                // Safety check: stop if we've drawn too many frames
+                // Safety check: stop if we've drawn too many frames (time-based backup)
                 if (frameCount > maxFrames) {
                     console.warn('Maximum frames reached, stopping recording');
                     mediaRecorder.stop();
@@ -517,11 +543,40 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     lastUpdate = now;
                 }
 
-                // Draw processed video (already has watermark and audio from Cloudinary)
-                ctx.drawImage(processedVideo, 0, 0, videoWidth, videoHeight);
+                // Fill canvas with black background
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                // Draw video with object-contain in video section (below caption)
+                ctx.drawImage(processedVideo, drawX, drawY, drawWidth, drawHeight);
 
                 // Draw caption overlay on top
                 ctx.drawImage(captionCanvas, 0, 0);
+
+                // Draw watermark overlay on the video (top right of actual video)
+                const watermarkText = 'www.1010web.studio';
+                const watermarkFontSize = Math.max(11, Math.round(11 * (canvasWidth / 432)));
+                const watermarkPadding = Math.round(12 * (canvasWidth / 432));
+
+                ctx.font = `600 ${watermarkFontSize}px Arial, sans-serif`;
+                const textMetrics = ctx.measureText(watermarkText);
+                const watermarkX = drawX + drawWidth - textMetrics.width - (watermarkPadding * 2);
+                const watermarkY = drawY + watermarkPadding;
+
+                // Draw simple watermark text with shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 2;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.textBaseline = 'top';
+                ctx.fillText(watermarkText, watermarkX, watermarkY);
+
+                // Reset shadow
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
 
                 requestAnimationFrame(draw);
             };

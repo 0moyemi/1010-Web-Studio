@@ -488,7 +488,6 @@ function VideoControls({
                 <input
                     type="file"
                     accept="video/mp4,video/quicktime,video/webm,video/*"
-                    capture="environment"
                     onChange={handleVideoUpload}
                     className="w-full px-4 py-3 bg-[var(--card-background)] border border-[var(--border-color)] 
                    rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)]

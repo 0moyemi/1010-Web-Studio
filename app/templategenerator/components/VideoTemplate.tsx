@@ -1,7 +1,7 @@
 "use client";
 
 import { VideoData } from "../page";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 
 interface VideoTemplateProps {
     data: VideoData;
@@ -31,8 +31,8 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
         }
     }, [data.video]);
 
-    // Parse caption to highlight words wrapped in asterisks
-    const renderCaption = () => {
+    // Parse caption to highlight words wrapped in asterisks - memoized for performance
+    const renderedCaption = useMemo(() => {
         const parts = data.caption.split(/(\*[^*]+\*)/g);
         return parts.map((part, index) => {
             if (part.startsWith('*') && part.endsWith('*')) {
@@ -46,13 +46,20 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
             }
             return <span key={index}>{part}</span>;
         });
-    };
+    }, [data.caption]);
+
+    // Memoize video styles for performance
+    const videoStyle = useMemo(() => ({
+        objectPosition: `${data.videoPosition.x}% ${data.videoPosition.y}%`,
+        transform: `scale(${data.videoScale})`,
+        willChange: 'transform'
+    }), [data.videoPosition.x, data.videoPosition.y, data.videoScale]);
 
     return (
         <div className="w-full h-full relative overflow-hidden bg-[#040d1f]">
             {/* Caption Section - Top 20% */}
             <div
-                className="absolute top-0 left-0 right-0 z-20 flex items-end justify-start px-6 pb-4"
+                className="absolute top-0 left-0 right-0 z-20 flex items-center justify-start px-6"
                 style={{
                     height: "20%",
                     background: "linear-gradient(to bottom, rgba(4, 13, 31, 0.95) 0%, rgba(4, 13, 31, 0.85) 100%)",
@@ -67,7 +74,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                         whiteSpace: "pre-line",
                     }}
                 >
-                    {renderCaption()}
+                    {renderedCaption}
                 </h2>
             </div>
 
@@ -85,7 +92,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                         <video
                             ref={videoRef}
                             src={data.video}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                             loop
                             muted
                             playsInline
@@ -100,10 +107,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                                     videoRef.current.load();
                                 }
                             }}
-                            style={{
-                                objectPosition: `${data.videoPosition.x}% ${data.videoPosition.y}%`,
-                                transform: `scale(${data.videoScale})`,
-                            }}
+                            style={videoStyle}
                         />
 
                         {/* Website Watermark - Top Right of Video Section */}
@@ -113,8 +117,7 @@ export default function VideoTemplate({ data }: VideoTemplateProps) {
                                 style={{
                                     fontSize: "11px",
                                     textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
-                                    background: "rgba(4, 13, 31, 0.6)",
-                                    backdropFilter: "blur(8px)",
+                                    background: "rgba(4, 13, 31, 0.8)",
                                 }}
                             >
                                 www.1010web.studio
