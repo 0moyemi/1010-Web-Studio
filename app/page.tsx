@@ -39,126 +39,123 @@ export default function Home() {
   }, []);
 
   const painPoints = [
-    { text: "You explain your products over and over again", icon: MessageSquare },
-    { text: `Your customers disappear after "I'll get back to you"`, icon: UserX },
-    { text: "You don't have one clear place to send customers", icon: MapPinOff },
-    { text: "You struggle to post and follow up consistently", icon: CalendarX },
+    { text: "You type the same product details 20 times a day", icon: MessageSquare },
+    { text: `Customers say "I'll get back to you", and disappear`, icon: UserX },
+    { text: "New customers don't trust small pages", icon: Shield },
+    { text: "Serious buyers get tired and leave", icon: UserX },
   ];
 
   const services = [
     {
-      title: "One Simple Business Link",
-      description: "Share your complete product catalog with a single link",
-      icon: Link,
+      title: "Customers Stop Asking Too Many Questions",
+      description: "They see your prices, sizes, and photos clearly.",
+      icon: MessageSquare,
     },
     {
-      title: "Clean Product Display",
-      description: "Customers see everything clearly without needing to ask you",
-      icon: LayoutGrid,
+      title: "Serious Buyers Buy Faster",
+      description: "No more long explanations before someone pays.",
+      icon: Rocket,
     },
     {
-      title: "Trustworthy Presence",
-      description: "Customers trust you're real and reachable, not just another scammer",
+      title: "You Look Like a Big Brand",
+      description: "Even if you're a small fashion business in Nigeria.",
       icon: Shield,
     },
     {
-      title: "WhatsApp Ads Support",
-      description: "More people discover your business on WhatsApp",
-      icon: Megaphone,
+      title: "You Stop Wasting Time",
+      description: "Send one link. That's it.",
+      icon: Link,
     },
   ];
 
   const solutions: Solution[] = [
     {
-      title: "One Simple Business Link",
+      title: "Your WhatsApp Store",
       pain: [
-        "→ You explain your products over and over again",
-        `→ Customers get confused, ask too many questions, and still say "I'll get back to you"`,
-        "→ There's no one clear place to send people"
+        "→ You type product details over and over, and people still ask for prices, sizes, colors",
+        `→ New customers don't trust you because your page looks small and unprofessional`
       ],
       solution: [
-        "→ We give you a single business link that shows everything you sell in a clean, simple way",
-        "→ You can easily upload or update products yourself anytime, without stress or technical headaches"
+        "→ We build you one clean page showing all your clothes with prices, sizes, and clear photos",
+        "→ You can add or change products anytime yourself — no technical stress"
       ],
       outcome: [
-        "→ Customers can see everything you offer in one place, anytime",
-        "→ You stay in control, update your products when it's convenient, and go on with your day"
+        "→ Customers browse your full collection and buy without asking you anything",
+        "→ You look like a real brand, even as a small fashion business"
       ],
       images: [
-        { src: "/products-showcase-1.jpg", alt: "Online product catalog example for small business in Nigeria showing clean product display" },
-        { src: "/products-showcase-2.jpg", alt: "Business website product catalog with easy navigation for Nigerian small businesses" },
-        { src: "/products-showcase-3.jpg", alt: "Simple sales system product showcase with prices and descriptions for online selling" },
-        { src: "/products-showcase-4.jpg", alt: "Mobile-friendly product catalog website for small business online store" },
-        { src: "/product-showcase-5.jpg", alt: "WhatsApp-integrated product catalog for Nigerian small businesses selling online" }
+        { src: "/products-showcase-1.jpg", alt: "WhatsApp store for Nigerian fashion brand showing dresses with prices and sizes" },
+        { src: "/products-showcase-2.jpg", alt: "Online fashion catalog for WhatsApp business Nigeria - clean product display" },
+        { src: "/products-showcase-3.jpg", alt: "Fashion store page for selling clothes on WhatsApp Nigeria" },
+        { src: "/products-showcase-4.jpg", alt: "Mobile-friendly fashion catalog for Nigerian fashion brands on WhatsApp" },
+        { src: "/product-showcase-5.jpg", alt: "WhatsApp business store for selling fashion in Nigeria" }
       ]
     },
     {
-      title: "Consistency System",
+      title: "Stay Visible",
       pain: [
-        "→ You want to post consistently, but life gets busy",
-        "→ You forget who showed interest, which costs you money"
+        "→ You want to post every day but life gets busy",
+        "→ You forget which customers said they'd come back"
       ],
       solution: [
-        "→ We set up ready-made templates for daily status updates and weekly broadcasts",
-        "→ Plus a simple tracker to see every pending customer at a glance"
+        "→ We give you pre-written status updates and broadcast messages for your fashion business",
+        "→ Plus automatic reminders so you never forget to post or follow up"
       ],
       outcome: [
-        "→ Your business stays visible without daily stress",
-        "→ You never lose track of interested customers",
-        "→ Consistency becomes automatic, not a burden"
+        "→ You stay visible without the stress of thinking how to keep in touch",
+        "→ Lost customers come back because you reach out at the right time"
       ],
       images: [
-        { src: "/status-consistency.jpg", alt: "WhatsApp status templates for consistent online selling and business visibility in Nigeria" },
-        { src: "/follow-up-tracker.jpg", alt: "Customer follow-up tracking system for small businesses managing sales leads and orders" }
+        { src: "/status-consistency.jpg", alt: "WhatsApp status templates for Nigerian fashion brands selling clothes" },
+        { src: "/follow-up-tracker.jpg", alt: "Customer follow-up tracker for fashion businesses on WhatsApp Nigeria" }
       ]
     },
     {
-      title: "Follow-Up System",
+      title: "Ready-Made Messages",
       pain: [
-        "→ Customers say 'I'll get back to you' and disappear",
-        "→ You don't know what to say or when without sounding pushy"
+        "→ Customers disappear after showing interest",
+        "→ You don't know how to follow up without sounding desperate. Or, other times you simply forget"
       ],
       solution: [
-        "→ Smart message templates for different scenarios — gentle check-ins, order confirmations, delivery updates, reminders",
-        "→ Ready to copy and send at the right time"
+        "→ Click the customer's name, pick a template, and it opens directly in their WhatsApp chat",
+        "→ Professional messages for every situation — check-ins, order updates, gentle reminders"
       ],
       outcome: [
-        "→ Conversations keep moving forward",
-        "→ Lost customers come back",
-        "→ You sound professional, not desperate"
+        "→ No more forgetting customers. No more thinking what to say. Just click and send.",
+        "→ Customers who disappeared come back and buy"
       ],
       images: [
-        { src: "/messaging-template.jpg", alt: "Professional WhatsApp message templates for small business customer follow-up and sales communication" }
+        { src: "/messaging-template.jpg", alt: "WhatsApp message templates for Nigerian fashion brands to follow up with customers" }
       ]
     }
   ];
 
   const solutionCardSubtexts = [
-    "Do you go through the stress of explaining your products over and over again, to every new customer?",
-    "Do you want to post consistently, but life gets busy?",
-    `Do customers say "I'll get back to you", and never get back to you?`
+    "Tired of explaining prices and sizes to every single person who asks?",
+    "Want to remain consistent but find it difficult?",
+    `People say "I'll think about it" and disappear forever?`
   ];
 
   const processSteps = [
     {
       number: "01",
-      title: "We learn your business",
+      title: "We learn about your business",
       description:
-        "Tell us about your products, your customers, and what makes you different. We take time to understand what you really need",
+        "Tell us what you sell and how you're currently selling on WhatsApp.",
       icon: Ear,
     },
     {
       number: "02",
-      title: "We build your system",
+      title: "We build your store",
       description:
-        "We organize everything and create a clean, simple showcase where your customers can easily browse and order",
+        "We create a clean, simple page where your customers can easily see and order your products.",
       icon: LayoutGrid,
     },
     {
       number: "03",
-      title: "We launch and support",
+      title: "Sales gets easier",
       description:
-        "We make sure everything works smoothly, then stay with you for any updates or questions you have",
+        "Share your link on WhatsApp and watch customers buy easier. We're here if you need any help.",
       icon: Rocket,
     },
   ];
@@ -172,25 +169,25 @@ export default function Home() {
 
           <main>
             {/* Hero Section */}
-            <section id="hero" className="mx-auto max-w-4xl px-6 py-15 text-center lg:py-32 fade-in-up" aria-label="Sales systems and product catalogs for small businesses in Nigeria">
+            <section id="hero" className="mx-auto max-w-4xl px-6 py-15 text-center lg:py-32 fade-in-up" aria-label="WhatsApp store setup for fashion brands in Nigeria - sell clothes easier online">
               <h1
-                className="mx-auto mb-6 max-w-3xl text-3xl font-bold sm:text-5xl lg:text-6xl text-shadow-md"
+                className="mx-auto mb-6 max-w-3xl text-4xl font-bold sm:text-5xl lg:text-6xl text-shadow-md"
                 style={{
                   color: 'var(--text-primary)',
                   letterSpacing: '-0.02em',
                   lineHeight: '1.35'
                 }}
               >
-                <span style={{ whiteSpace: 'nowrap' }}>Display everything you sell,</span>
+                <span style={{ whiteSpace: 'nowrap' }}>Stop Losing Sales</span>
                 <br />
-                <span className="text-gradient-accent">in one link.</span>
-                <span className="sr-only"> - Sales systems and product catalogs for small businesses in Nigeria selling online</span>
+                <span className="text-gradient-accent">on WhatsApp.</span>
+                <span className="sr-only"> - WhatsApp store setup for Nigerian fashion brands selling clothes online</span>
               </h1>
               <p
                 className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed sm:text-xl text-shadow-sm"
                 style={{ color: 'var(--text-primary)', opacity: 0.95 }}
               >
-                Why stress yourself explaining your products to every new customer, when you can just send them one link?
+                Your customers leave because buying is stressful. We make it easy.
               </p>
               <a
                 href="#our-work"
@@ -202,7 +199,7 @@ export default function Home() {
                   boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                 }}
               >
-                View Our Work
+                See How It Works
               </a>
             </section>
 
@@ -210,7 +207,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* Pain Points Section */}
-            <section id="pain-points" className="py-20 lg:py-28 scroll-fade-in" aria-label="Common challenges for Nigerian small businesses selling online with WhatsApp">
+            <section id="pain-points" className="py-20 lg:py-28 scroll-fade-in" aria-label="Why Nigerian fashion stores lose sales on WhatsApp - common challenges selling clothes online">
               <div className="mx-auto max-w-3xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -220,20 +217,26 @@ export default function Home() {
                     lineHeight: '1.2'
                   }}
                 >
-                  Sound familiar?
-                  <span className="sr-only"> - Challenges Nigerian small businesses face selling online</span>
+                  Why Your Fashion Store Is Losing Sales on WhatsApp
+                  <span className="sr-only"> - Problems Nigerian fashion brands face selling clothes on WhatsApp</span>
                 </h2>
                 <p
                   className="mb-12 text-lg text-shadow-sm"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  These are problems we will help you solve.
+                  If this sounds like you, you're losing money every single day!
                 </p>
                 <GlassCard className="p-8">
                   <div className="space-y-6">
                     {painPoints.map((point, index) => (
                       <PainPoint key={index} text={point.text} icon={point.icon} />
                     ))}
+                    {/* <p
+                      className="mt-8 pt-6 border-t text-center text-lg font-semibold"
+                      style={{ borderColor: 'var(--glass-border)', color: 'var(--highlight)' }}
+                    >
+                      Every day this continues, you're losing money.
+                    </p> */}
                   </div>
                 </GlassCard>
               </div>
@@ -243,7 +246,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* What You Get Section */}
-            <section id="what-we-build" className="py-20 lg:py-28 scroll-fade-in" aria-label="Sales systems, product catalogs, and websites we build for Nigerian small businesses">
+            <section id="what-we-build" className="py-20 lg:py-28 scroll-fade-in" aria-label="What changes after we build your WhatsApp store for your fashion brand in Nigeria">
               <div className="mx-auto max-w-7xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -253,14 +256,14 @@ export default function Home() {
                     lineHeight: '1.2'
                   }}
                 >
-                  What you get
-                  <span className="sr-only"> - Complete sales systems and product catalogs for online selling</span>
+                  What Changes After We Build Your Store
+                  <span className="sr-only"> - How your WhatsApp fashion store changes after we help you</span>
                 </h2>
                 <p
                   className="mb-12 max-w-2xl text-lg text-shadow-sm"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  Everything you need to stop stressing and start selling with a simple link.
+                  Everything gets easier. Easier sales, less stress.
                 </p>
                 {/* Horizontal scroll container */}
                 <div className="scroll-cards-container hide-scrollbar flex gap-5 overflow-x-auto pl-6 pr-6 py-8 pb-4 snap-x snap-mandatory">
@@ -284,7 +287,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* Solutions Showcase Section */}
-            <section id="our-work" className="py-20 lg:py-28 scroll-fade-in" aria-label="Sales systems and website solutions for Nigerian small businesses selling online">
+            <section id="our-work" className="py-20 lg:py-28 scroll-fade-in" aria-label="WhatsApp store solutions for Nigerian fashion brands selling clothes online">
               <div className="mx-auto max-w-6xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm text-center"
@@ -294,14 +297,14 @@ export default function Home() {
                     lineHeight: '1.2'
                   }}
                 >
-                  View Our Work
-                  <span className="sr-only"> - Product catalogs and sales systems for small businesses in Nigeria</span>
+                  See How We Help Fashion Brands
+                  <span className="sr-only"> - WhatsApp store setups for Nigerian fashion businesses</span>
                 </h2>
                 <p
                   className="mb-4 text-lg text-shadow-sm text-center"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  How we remove stress from selling online
+                  Real solutions that get you more sales and less stress
                 </p>
                 <p
                   className="mb-12 text-sm text-center italic"
@@ -362,9 +365,15 @@ export default function Home() {
                       style={{ color: 'var(--text-secondary)' }}
                     >
                       <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        Ready-to-use systems.
+                        Simple and ready to use.
                       </span>
-                      {" "}Just plug in, customize, and start using. Our first 5 clients get the special pre-launch package!
+                      {" "}Just share your link and start getting sales.
+                    </p>
+                    <p
+                      className="mt-3 text-sm font-medium"
+                      style={{ color: 'var(--highlight)' }}
+                    >
+                      ⚡ Special package for our first 5 fashion brands
                     </p>
                   </div>
                 </GlassCard>
@@ -375,7 +384,7 @@ export default function Home() {
             <div className="section-divider my-24"></div>
 
             {/* Process Section */}
-            <section id="how-we-work" className="py-20 lg:py-28 scroll-fade-in" aria-label="Our process for building sales systems and websites for Nigerian small businesses">
+            <section id="how-we-work" className="py-20 lg:py-28 scroll-fade-in" aria-label="How we build WhatsApp stores for Nigerian fashion brands">
               <div className="mx-auto max-w-4xl px-6">
                 <h2
                   className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
@@ -385,14 +394,14 @@ export default function Home() {
                     lineHeight: '1.2'
                   }}
                 >
-                  How we work
-                  <span className="sr-only"> - Building product catalogs and sales systems for Nigerian businesses</span>
+                  How it works
+                  <span className="sr-only"> - Setting up your WhatsApp fashion store</span>
                 </h2>
                 <p
                   className="mb-12 text-lg text-shadow-sm"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  A clear process from start to finish.
+                  Three simple steps to start selling easier.
                 </p>
                 <GlassCard className="p-8">
                   <div className="grid gap-6 sm:grid-cols-2">
@@ -442,28 +451,28 @@ export default function Home() {
             <section
               id="get-started"
               className="pt-15  lg:py-28"
-              aria-label="Get started with sales systems and product catalogs for your small business in Nigeria"
+              aria-label="Start selling clothes easier on WhatsApp - get your fashion store link today"
             >
               <div className="mx-auto max-w-3xl px-6 text-center">
                 <h2
-                  className="mb-4 text-3xl font-bold sm:text-4xl text-shadow-sm"
+                  className="mb-6 text-3xl font-bold sm:text-4xl text-shadow-sm"
                   style={{
                     color: 'var(--text-primary)',
                     letterSpacing: '-0.01em',
-                    lineHeight: '1.2'
+                    lineHeight: '1.35'
                   }}
                 >
-                  Selling online shouldn't feel this stressful
-                  <span className="sr-only"> - Start selling online with product catalogs and sales systems</span>
+                  Stop Losing Customers.
+                  <span className="sr-only"> - Get your WhatsApp store link for your Nigerian fashion brand</span>
                 </h2>
                 <p
                   className="mb-10 text-lg leading-relaxed text-shadow-sm"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  Give your customers one place to see everything you sell. No more wasted time and efforts. Send one link, and watch them order when they're ready.
+                  Give them one link and watch them buy.
                 </p>
                 <a
-                  href="https://wa.me/2349040991849?text=Hello%201010%20Web%20Studio%2C%20I%20checked%20your%20website%20and%20I%27d%20like%20to%20discuss%20a%20project."
+                  href="https://wa.me/2349040991849?text=Hello%201010%20Web%20Studio%2C%20I%20want%20to%20stop%20losing%20sales%20on%20WhatsApp.%20Let%27s%20build%20my%20link."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block rounded-full px-8 py-3.5 text-base font-medium transition-all hover:scale-105 hover:shadow-2xl backdrop-blur-xl border btn-press"
@@ -474,7 +483,7 @@ export default function Home() {
                     boxShadow: '0 4px 24px var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                   }}
                 >
-                  Get started now
+                  Build My Link Now
                 </a>
               </div>
             </section>

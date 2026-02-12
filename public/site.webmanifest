@@ -1,6 +1,7 @@
 {
-    "name": "1010 Web Studio",
+    "name": "1010 Web Studio - WhatsApp Store for Fashion Brands",
     "short_name": "1010 Web",
+    "description": "Stop losing sales on WhatsApp. We build Nigerian fashion brands simple links where customers buy easily.",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
@@ -11,9 +12,20 @@
             "src": "/android-chrome-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
+        },
+        {
+            "src": "/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png"
         }
     ],
     "theme_color": "#3b5998",
     "background_color": "#040d1f",
-    "display": "standalone"
+    "display": "standalone",
+    "start_url": "/"
 }
