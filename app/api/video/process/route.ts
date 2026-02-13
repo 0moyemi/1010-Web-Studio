@@ -1,14 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 
-cloudinary.config({
-    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 export async function POST(request: NextRequest) {
     try {
+        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+        if (!cloudName || !apiKey || !apiSecret) {
+            return NextResponse.json(
+                {
+                    error: 'Cloudinary env vars are missing',
+                    details: {
+                        cloudName: Boolean(cloudName),
+                        apiKey: Boolean(apiKey),
+                        apiSecret: Boolean(apiSecret),
+                    },
+                },
+                { status: 500 }
+            );
+        }
+
+        cloudinary.config({
+            cloud_name: cloudName,
+            api_key: apiKey,
+            api_secret: apiSecret,
+        });
+
         const formData = await request.formData();
         const videoFile = formData.get('video') as File;
         const videoAspectRatio = formData.get('videoAspectRatio') as string;
@@ -31,14 +49,6 @@ export async function POST(request: NextRequest) {
                     folder: 'branded-videos',
                     // Auto-delete after 1 day
                     expires_at: Math.floor(Date.now() / 1000) + 86400,
-                    transformation: [
-                        // No transformations - preserve original video with audio
-                        {
-                            video_codec: 'h264',
-                            audio_codec: 'aac',
-                            quality: 'auto:best',
-                        },
-                    ],
                 },
                 (error, result) => {
                     if (error) {

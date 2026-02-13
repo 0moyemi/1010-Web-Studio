@@ -467,14 +467,15 @@ function VideoControls({
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setVideoData({ ...videoData, video: event.target?.result as string });
-            };
-            reader.onerror = () => {
-                alert("Failed to load video. Please try a different file or use a smaller video.");
-            };
-            reader.readAsDataURL(file);
+            if (videoData.video) {
+                URL.revokeObjectURL(videoData.video);
+            }
+
+            const objectUrl = URL.createObjectURL(file);
+            setVideoData({ ...videoData, video: objectUrl, videoFile: file });
+
+            // Allow re-uploading the same file if needed
+            e.target.value = "";
         }
     };
 
@@ -502,7 +503,12 @@ function VideoControls({
                 </p>
                 {videoData.video && (
                     <button
-                        onClick={() => setVideoData({ ...videoData, video: null })}
+                        onClick={() => {
+                            if (videoData.video) {
+                                URL.revokeObjectURL(videoData.video);
+                            }
+                            setVideoData({ ...videoData, video: null, videoFile: null });
+                        }}
                         className="mt-2 text-xs text-red-400 hover:text-red-300 transition-colors"
                     >
                         Remove Video

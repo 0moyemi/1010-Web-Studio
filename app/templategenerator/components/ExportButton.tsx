@@ -204,7 +204,7 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
 
     // Canva-style approach: Cloudinary does heavy lifting, client adds caption
     const exportVideoWithOverlays = async () => {
-        if (!videoData?.video) {
+        if (!videoData?.video && !videoData?.videoFile) {
             setIsExporting(false);
             alert("Please upload a video first");
             return;
@@ -214,9 +214,15 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
             // Step 1: Upload to Cloudinary for processing (adds watermark, preserves audio)
             setExportProgress("Preparing video...");
 
-            const response = await fetch(videoData.video);
-            const blob = await response.blob();
-            const videoFile = new File([blob], "video.mp4", { type: blob.type });
+            let videoFile: File;
+
+            if (videoData.videoFile) {
+                videoFile = videoData.videoFile;
+            } else {
+                const response = await fetch(videoData.video as string);
+                const blob = await response.blob();
+                videoFile = new File([blob], "video.mp4", { type: blob.type || "video/mp4" });
+            }
 
             const formData = new FormData();
             formData.append('video', videoFile);
@@ -244,14 +250,15 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                             const result = JSON.parse(xhr.responseText);
                             resolve(result.url);
                         } catch (e) {
-                            reject(new Error('Failed to parse response'));
+                            reject(new Error(`Failed to parse response: ${xhr.responseText || 'empty response'}`));
                         }
                     } else {
+                        const fallbackMessage = xhr.responseText || xhr.statusText || 'Failed to process video';
                         try {
                             const errorData = JSON.parse(xhr.responseText);
-                            reject(new Error(errorData.details || 'Failed to process video'));
+                            reject(new Error(errorData.details || errorData.error || fallbackMessage));
                         } catch (e) {
-                            reject(new Error(`Server error: ${xhr.status}`));
+                            reject(new Error(`Server error ${xhr.status}: ${fallbackMessage}`));
                         }
                     }
                 };
@@ -269,7 +276,10 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
 
             const processedVideo = document.createElement('video');
             processedVideo.crossOrigin = "anonymous";
-            processedVideo.muted = true; // Mute playback (but audio tracks still captured)
+            processedVideo.muted = false;
+            processedVideo.volume = 0; // Keep silent while preserving audio tracks
+            processedVideo.playsInline = true;
+            processedVideo.preload = 'auto';
             processedVideo.style.display = 'none';
             document.body.appendChild(processedVideo);
 
@@ -290,7 +300,8 @@ export default function ExportButton({ templateType, carouselData, setCarouselDa
                     if (xhr.status === 200) {
                         resolve(xhr.response);
                     } else {
-                        reject(new Error(`Failed to download video: ${xhr.status}`));
+                        const message = xhr.responseText || xhr.statusText || 'Download failed';
+                        reject(new Error(`Failed to download video ${xhr.status}: ${message}`));
                     }
                 };
 

@@ -34,6 +34,7 @@ export interface CarouselData {
 
 export interface VideoData {
     video: string | null;
+    videoFile?: File | null;
     caption: string;
     captionFontSize: number;
     videoAspectRatio: "1:1" | "4:5" | "9:16";
@@ -81,6 +82,7 @@ export default function TemplateGenerator() {
 
     const [videoData, setVideoData] = useState<VideoData>({
         video: null,
+        videoFile: null,
         caption: "Transform your business with simple digital solutions",
         captionFontSize: 26,
         videoAspectRatio: "9:16",
@@ -99,7 +101,15 @@ export default function TemplateGenerator() {
             if (savedTemplateType) setTemplateType(savedTemplateType as TemplateType);
             if (savedQuoteData) setQuoteData(JSON.parse(savedQuoteData));
             if (savedCarouselData) setCarouselData(JSON.parse(savedCarouselData));
-            if (savedVideoData) setVideoData(JSON.parse(savedVideoData));
+            if (savedVideoData) {
+                const parsedVideoData = JSON.parse(savedVideoData);
+                setVideoData((prev) => ({
+                    ...prev,
+                    ...parsedVideoData,
+                    video: null,
+                    videoFile: null,
+                }));
+            }
         } catch (error) {
             console.error('Error loading saved data:', error);
         }
@@ -113,7 +123,7 @@ export default function TemplateGenerator() {
             localStorage.setItem('carouselData', JSON.stringify(carouselData));
             // Don't save video data to localStorage (too large, causes quota errors)
             // Only save non-video fields
-            const { video, ...videoDataWithoutVideo } = videoData;
+            const { video, videoFile, ...videoDataWithoutVideo } = videoData;
             localStorage.setItem('videoData', JSON.stringify(videoDataWithoutVideo));
         } catch (error) {
             console.error('Error saving data:', error);

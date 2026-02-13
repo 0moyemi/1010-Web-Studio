@@ -148,7 +148,7 @@ export default function Home() {
       number: "02",
       title: "We build your store",
       description:
-        "We create a clean, simple page where your customers can easily see and order your products.",
+        "We create a clean page where customers see your products. Plus a simple WhatsApp system so you never forget to follow up with any customer.",
       icon: LayoutGrid,
     },
     {
@@ -368,12 +368,6 @@ export default function Home() {
                         Simple and ready to use.
                       </span>
                       {" "}Just share your link and start getting sales.
-                    </p>
-                    <p
-                      className="mt-3 text-sm font-medium"
-                      style={{ color: 'var(--highlight)' }}
-                    >
-                      ⚡ Special package for our first 5 fashion brands
                     </p>
                   </div>
                 </GlassCard>
